@@ -4,6 +4,9 @@ import NewsController from '../controllers/newsController';
 
 const newsController = new NewsController();
 
+router.get('/ping', (req: Request, res: Response) => {
+  res.status(200).send('successful serve ping');
+})
 router.get('/', newsController.getArticles, newsController.saveArticles, (req: Request, res: Response) => {
   res.status(200).send('Articles successfully saved');
 })
