@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es2018",               // Set ECMAScript target version
+    "module": "commonjs",             // Use commonjs module system (suitable for Node.js)
+    "outDir": "./dist",               // Output directory for compiled files
+    "rootDir": "./",                  // Root directory of your TypeScript files
+    "strict": true,                   // Enable strict type-checking options
+    "esModuleInterop": true,          // Allow default imports from modules with no default export
+    "skipLibCheck": true,             // Skip type checking of declaration files
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,        // If you're using JSON imports, enable this
+    "moduleResolution": "node"        // Use Node.js style module resolution
+  },
+  "include": [
+    "**/*.ts" // Include all TypeScript files in the project
+  ],
+  "exclude": [
+    "node_modules", // Exclude node_modules
+    "dist"          // Exclude the dist folder
+  ]
+}
