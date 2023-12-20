@@ -1,4 +1,5 @@
 import axios from 'axios';
+import db from '../db/rds.config';
 import * as dotenv from 'dotenv';
 import News from '../db/models/newsModel';
 dotenv.config();
@@ -70,25 +71,52 @@ class NewsService {
   }
 
   async saveArticles (articles: any) {
-    try {
+    const articlesString = JSON.stringify(articles);
+    const queryString = 'UPDATE news SET articles = $1 WHERE news_id = $2'
+    const values = [articlesString, 1]
 
-      const doc = await News.findOneAndUpdate(
-        { news_Id: "mainInstance" },
-        { $set: { articles: articles, lastUpdated: new Date() } },
-        { new: true, upsert: true }
-      );
+    try {
+      await db.query(queryString, values);
+
     } catch (e) {
-      console.error('error saviing articles to database', e)
+      console.error('error updating news values', e);
     }
+    // try {
+
+    //   const doc = await News.findOneAndUpdate(
+    //     { news_Id: "mainInstance" },
+    //     { $set: { articles: articles, lastUpdated: new Date() } },
+    //     { new: true, upsert: true }
+    //   );
+    // } catch (e) {
+    //   console.error('error saviing articles to database', e)
+    // }
   }
 
   async getSavedArticles () {
+    const queryString = 'SELECT articles FROM news WHERE news_id = $1';
+    const values = [1];
+
     try {
-      const newsDoc: any = await News.findOne({news_Id: "mainInstance"});
-      return newsDoc.articles;
+        const response = await db.query(queryString, values);
+
+        if (response.rows.length === 0) {
+            console.error('No articles found or articles data is null');
+            return null;
+        }
+
+        const articles = response.rows[0].articles;
+        return articles;
     } catch (e) {
-      console.error('error fetching articles from database in getSavedArticles service', e);
+        console.error('Error fetching saved news articles', e);
+        return null;
     }
+    // try {
+    //   const newsDoc: any = await News.findOne({news_Id: "mainInstance"});
+    //   return newsDoc.articles;
+    // } catch (e) {
+    //   console.error('error fetching articles from database in getSavedArticles service', e);
+    // }
   }
 }
 
