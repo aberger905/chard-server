@@ -96,6 +96,7 @@ class ArticleController {
 
     saveGeneratedArticle = async (req: Request, res: Response, next: NextFunction ) => {
     const { article, submissionId } = res.locals;
+    console.log('HERE INSIDE SAVEGENERATEDARTICLE, ARTICLE FROM RES LOCALCS', article);
     const parsedArticle = JSON.parse(article[0].message.content);
 
     try {
@@ -137,10 +138,12 @@ class ArticleController {
     }
 
     scheduleEmails = async (req: Request, res: Response, next: NextFunction) => {
-      const { inputs, article } = res.locals;
-      const { title, article_id } = article;
+      const { inputs, article, newArticleId } = res.locals;
       const { email } = inputs;
-      const slug = slugify(title, article_id);
+
+      const parsedArticle = JSON.parse(article[0].message.content);
+      const { title } = parsedArticle
+      const slug = slugify(title, newArticleId);
 
       try {
         // Send confirmation email immediately
@@ -158,12 +161,13 @@ class ArticleController {
         // } else {
 
         // }
-        schedule.scheduleJob(Date.now() + 44 * 60 * 60 * 1000, async () => {
+        //44 * 60 * 60 * 1000
+        schedule.scheduleJob(Date.now() + 60000, async () => {
           await this.articleService.sendEditorialEmail(email, title);
         });
 
-
-        schedule.scheduleJob(Date.now() + 67 * 60 * 60 * 1000, async () => {
+        //67 * 60 * 60 * 1000
+        schedule.scheduleJob(Date.now() + 120000, async () => {
           await this.articleService.sendReviewEmail(slug, email);
         });
       } catch (e) {

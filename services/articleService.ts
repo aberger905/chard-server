@@ -18,7 +18,7 @@ class ArticleService {
   private createPrompt = (input: ArticleInput): string => {
     const { fullName, pronouns, subject, story } = input;
 
-    const prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. You are now a news journalist writing a story. Please write roughly a 100 word news article based on the input provided. The person who should be the sole focus of the article: <${fullName}> , pronouns to refer to them by are <${pronouns}>. The subject of this article will be: <${subject}> Information relevant to the article: <${story}>.  Please do not make up any information. Feel free to add information or speak about the broader subject at hand. If you can find any quotes from the user’s story, please use them. I want the response to be in a JSON string, where the object has the key "title", with its value being a string of the title, and another key "content", the value is an array, each element of this array is the content of each part in order, where a natural break would be, even if they are single sentences for quotes etc.`
+    const prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. You are now a news journalist writing a story. Please write roughly a 100 word news article based on the input provided. The person who should be the sole focus of the article: <${fullName}> , pronouns to refer to them by are <${pronouns}>. The subject of this article will be: <${subject}> Information relevant to the article: <${story}>.  Please do not make up any information. Feel free to add information or speak about the broader subject at hand. If you can find any quotes from the user’s story, please use them. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.`
     return prompt;
   }
 
@@ -258,7 +258,7 @@ class ArticleService {
             Review and Submit for Publication
             It’s now your turn to take a look at the final piece. Please review the article at your earliest convenience to give it your stamp of approval.
 
-            🔗 http://localhost:5173/${slug}
+            🔗 http://localhost:3000/preview/${slug}
 
             Next Steps
             Once you review and approve the article, we will proceed with publishing it, showcasing your story to the world. We can’t wait to share it with our audience!
