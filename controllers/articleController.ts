@@ -3,6 +3,7 @@ import ArticleService from '../services/articleService'
 import Stripe from 'stripe';
 import * as dotenv from 'dotenv';
 import slugify from '../utils/slugify';
+import schedule from 'node-schedule';
 dotenv.config();
 
 class ArticleController {
@@ -68,8 +69,8 @@ class ArticleController {
             },
           ],
           mode: 'payment',
-          success_url: `http://localhost:3000/article?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `http://localhost:3000/payment`,
+          success_url: `${process.env.JOURNOVA_DOMAIN}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${process.env.JOURNOVA_DOMAIN}/payment`,
           automatic_tax: { enabled: true },
           metadata: { submissionId },
         });
@@ -134,6 +135,44 @@ class ArticleController {
         console.error('error in sendEmail controller', e);
       }
     }
+
+    scheduleEmails = async (req: Request, res: Response, next: NextFunction) => {
+      const { inputs, article } = res.locals;
+      const { title, article_id } = article;
+      const { email } = inputs;
+      const slug = slugify(title, article_id);
+
+      try {
+        // Send confirmation email immediately
+        await this.articleService.sendConfirmationEmail(email);
+
+        // if (premium === true) {
+        //   schedule.scheduleJob(Date.now() + 15 * 60 * 60 * 1000, async () => {
+        //     await this.articleService.sendEditorialEmail(email, title);
+        //   });
+
+
+        //   schedule.scheduleJob(Date.now() + 20 * 60 * 60 * 1000, async () => {
+        //     await this.articleService.sendReviewEmail(slug, email);
+        //   });
+        // } else {
+
+        // }
+        schedule.scheduleJob(Date.now() + 44 * 60 * 60 * 1000, async () => {
+          await this.articleService.sendEditorialEmail(email, title);
+        });
+
+
+        schedule.scheduleJob(Date.now() + 67 * 60 * 60 * 1000, async () => {
+          await this.articleService.sendReviewEmail(slug, email);
+        });
+      } catch (e) {
+        console.error('Error sending confirmation email or scheduling', e);
+        next(e);
+        // Consider handling the error more explicitly, maybe passing it to next() for centralized error handling
+      }
+    }
+
 
 
 }

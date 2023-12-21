@@ -32,6 +32,7 @@
     "mongodb": "^6.3.0",
     "mongoose": "^8.0.3",
     "node-fetch": "^3.3.2",
+    "node-schedule": "^2.1.1",
     "openai": "^4.20.1",
     "pg": "^8.11.3",
     "stripe": "^14.9.0"
