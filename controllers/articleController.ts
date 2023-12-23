@@ -59,12 +59,24 @@ class ArticleController {
 
     checkout = async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const { submissionId } = req.body;
+        const { submissionId, plan } = req.body;
+
+        let product: string;
+
+        if (plan === 'article') {
+          product = 'price_1OQbB2LGU8dofAUrf2AiXjvL';
+        } else if (plan === 'published') {
+          product = 'price_1OQbBbLGU8dofAUrjWqU6LqW';
+        } else if (plan === 'premium') {
+          product = 'price_1OQbDJLGU8dofAUrQEDnLMRE';
+        } else {
+          return 'no product found';
+        }
 
         const session = await this.stripe.checkout.sessions.create({
           line_items: [
             {
-              price: 'price_1ONlqALGU8dofAUr4ughvLMC', // Your price ID
+              price: product, // Your price ID
               quantity: 1,
             },
           ],
@@ -72,10 +84,10 @@ class ArticleController {
           success_url: `${process.env.JOURNOVA_DOMAIN}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${process.env.JOURNOVA_DOMAIN}/payment`,
           automatic_tax: { enabled: true },
-          metadata: { submissionId },
+          metadata: { submissionId, plan },
         });
 
-        res.json({ sessionId: session.id }); // Send session ID to the frontend
+        res.json({ sessionId: session.id, plan: plan }); // Send session ID to the frontend
       } catch (error) {
         console.error('Error creating Stripe checkout session:', error);
         next(error);
@@ -95,12 +107,12 @@ class ArticleController {
   }
 
     saveGeneratedArticle = async (req: Request, res: Response, next: NextFunction ) => {
-    const { article, submissionId } = res.locals;
+    const { article, submissionId, plan } = res.locals;
     console.log('HERE INSIDE SAVEGENERATEDARTICLE, ARTICLE FROM RES LOCALCS', article);
     const parsedArticle = JSON.parse(article[0].message.content);
 
     try {
-      const response = await this.articleService.saveGeneratedArticle(parsedArticle, submissionId);
+      const response = await this.articleService.saveGeneratedArticle(parsedArticle, submissionId, plan);
       res.locals.newArticleId = response;
       return next();
     } catch (e) {
@@ -162,12 +174,12 @@ class ArticleController {
 
         // }
         //44 * 60 * 60 * 1000
-        schedule.scheduleJob(Date.now() + 60000, async () => {
+        schedule.scheduleJob(Date.now() + 30000, async () => {
           await this.articleService.sendEditorialEmail(email, title);
         });
 
         //67 * 60 * 60 * 1000
-        schedule.scheduleJob(Date.now() + 120000, async () => {
+        schedule.scheduleJob(Date.now() + 60000, async () => {
           await this.articleService.sendReviewEmail(slug, email);
         });
       } catch (e) {

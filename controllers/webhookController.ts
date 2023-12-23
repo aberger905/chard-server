@@ -20,8 +20,11 @@ class WebhookController {
         if (event.type === 'checkout.session.completed') {
             const session: any = event.data.object as Stripe.Checkout.Session;
             const submissionId: string | number = session.metadata.submissionId || 2;
+            const plan: string = session.metadata.plan
 
             res.locals.submissionId = submissionId;
+            res.locals.plan = plan;
+
             return next();
         } else {
             console.log('Unexpected event type:', event.type);

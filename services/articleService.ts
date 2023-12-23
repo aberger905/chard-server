@@ -11,14 +11,23 @@ interface ArticleInput {
   pronouns: string;
   subject: string;
   story: string;
+  articleType: string;
 }
 
 class ArticleService {
 
   private createPrompt = (input: ArticleInput): string => {
-    const { fullName, pronouns, subject, story } = input;
+    const { fullName, pronouns, subject, story, articleType } = input;
 
-    const prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. You are now a news journalist writing a story. Please write roughly a 100 word news article based on the input provided. The person who should be the sole focus of the article: <${fullName}> , pronouns to refer to them by are <${pronouns}>. The subject of this article will be: <${subject}> Information relevant to the article: <${story}>.  Please do not make up any information. Feel free to add information or speak about the broader subject at hand. If you can find any quotes from the user’s story, please use them. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.`
+    let prompt: string;
+
+    if (articleType == 'featured') {
+      prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. As a journalist, you are tasked with writing a featured article around 1000 words. This article should revolve around a broader theme, incorporating the story and perspectives of <${fullName}>, who uses <${pronouns}> pronouns. The broader topic is: <${subject}>. Within this context, <${fullName}>'s specific experience is: <${story}>. Utilize any quotes from <${fullName}>'s experience to enrich the article. Ensure the focus remains on the larger theme while highlighting <${fullName}>'s contribution to this topic. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.
+      `
+    } else {
+      prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. You are now a news journalist writing a story. Please write roughly a 100 word news article based on the input provided. The person who should be the sole focus of the article: <${fullName}> , pronouns to refer to them by are <${pronouns}>. The subject of this article will be: <${subject}> Information relevant to the article: <${story}>.  Please do not make up any information. Feel free to add information or speak about the broader subject at hand. If you can find any quotes from the user’s story, please use them. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.`
+    }
+
     return prompt;
   }
 
@@ -68,12 +77,12 @@ class ArticleService {
 
   }
 
-  saveGeneratedArticle = async (article: any, submissionId: number) => {
+  saveGeneratedArticle = async (article: any, submissionId: number, plan: string) => {
   const { title, content } = article;
   const stringifiedContent = JSON.stringify(content);
 
-  const queryString = 'INSERT INTO articles (submission_id, title, content) VALUES ($1, $2, $3) RETURNING article_id'
-  const values = [submissionId, title, stringifiedContent]
+  const queryString = 'INSERT INTO articles (submission_id, title, content, plan) VALUES ($1, $2, $3, $4) RETURNING article_id'
+  const values = [submissionId, title, stringifiedContent, plan]
 
   try {
     const response = await db.query(queryString, values);
@@ -143,11 +152,47 @@ class ArticleService {
       },
       Message: {
         Subject: {
-          Data: 'Congratulations! Your Article is Published' // Email subject
+          Data: '🌟 Your Story is Now Published! Discover Your Article on [Platform/Website Name] 🌟'
         },
         Body: {
-          Text: {
-            Data: `Your article is ready! You can view it here: http://localhost:5173/${slug}` // Email body
+          Html: {
+            Data: `
+            <html>
+            <head>
+              <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; }
+                h1 { color: #333366; }
+                h2 { color: #333399; }
+                p { color: #333333; }
+                a { color: #1a0dab; text-decoration: none; }
+                .footer { margin-top: 20px; font-style: italic; }
+              </style>
+            </head>
+            <body>
+              <h1>We are thrilled to share that your article, “[Article Title]”, is now published!</h1>
+              <p>This marks a significant milestone in your journey with us, and we couldn't be more excited to see the impact your story will have.</p>
+
+              <h2>Experience Your Published Work</h2>
+              <p>You can view and share your published article by visiting the link below:</p>
+              <a href="http://localhost:5173/${slug}">View Your Article</a>
+
+              <h2>Share Your Achievement</h2>
+              <p>Feel free to share this link with friends, family, and your network. Your unique insights and experiences are now out there to educate, inspire, and resonate with readers across the globe.</p>
+
+              <h2>A Heartfelt Thank You</h2>
+              <p>We want to take a moment to thank you for entrusting us with your narrative. It has been an absolute pleasure working with you to bring your story to life. Your courage and honesty in sharing your experiences are what make our community of storytellers so special.</p>
+
+              <h2>We'd Love Your Feedback</h2>
+              <p>We are always looking to improve the experiences of our contributors. If you have any thoughts or feedback about your journey with us, we would love to hear from you.</p>
+
+              <div class="footer">
+                <p>Thank you once again for being a vital part of our storytelling community. We look forward to the possibility of collaborating with you again in the future!</p>
+                <p>Warm regards,</p>
+                <p>The Journova Team</p>
+              </div>
+            </body>
+            </html>
+            `
           }
         }
       }
@@ -171,23 +216,36 @@ class ArticleService {
           Data: "Your Story's Journey Begins - Submission Confirmed!"
         },
         Body: {
-          Text: {
+          Html: {
             Data: `
-            Congratulations on Taking the First Step!
+            <html>
+              <head>
+                <style>
+                  body { font-family: Arial, sans-serif; line-height: 1.6; }
+                  h1 { color: #333366; }
+                  p { color: #333333; }
+                  .content-section { margin-top: 20px; }
+                  .footer { margin-top: 30px; font-style: italic; }
+                </style>
+              </head>
+              <body>
+                <h1>Congratulations on Taking the First Step!</h1>
 
-            We are delighted to inform you that we have received your story submission. Our team of skilled journalists is brimming with excitement and ready to bring your unique narrative to life.
+                <p>We are delighted to inform you that we have received your story submission. Our team of skilled journalists is brimming with excitement and ready to bring your unique narrative to life.</p>
 
-            Here's What Happens Next:
+                <div class="content-section">
+                  <h2>Here's What Happens Next:</h2>
+                  <p><strong>Stay Informed:</strong> We believe in keeping you closely involved in every step of the process. You can expect regular updates via email, keeping you informed of the progress we make with your article.</p>
+                  <p><strong>Review and Approval:</strong> Crafting your story is a collaborative process. Once our team has intricately woven your narrative, you will have the opportunity to review it. This stage ensures that your voice and message shine through in every word.</p>
+                  <p><strong>Ready for the World:</strong> With your approval, we will take the final steps to prepare your article for publishing. The moment your story is ready to be shared with the world, you will be the first to know!</p>
+                </div>
 
-            Stay Informed: We believe in keeping you closely involved in every step of the process. You can expect regular updates via email, keeping you informed of the progress we make with your article.
-
-            Review and Approval: Crafting your story is a collaborative process. Once our team has intricately woven your narrative, you will have the opportunity to review it. This stage ensures that your voice and message shine through in every word.
-
-            Ready for the World: With your approval, we will take the final steps to prepare your article for publishing. The moment your story is ready to be shared with the world, you will be the first to know!
-
-            We deeply appreciate your contribution to our storytelling journey. Your story is now in the caring and capable hands of our dedicated team. As we embark on this creative endeavor, we share in your anticipation and excitement.
-
-            Keep an eye on your inbox for the latest updates and for the grand reveal of your completed article. Should you have any questions in the meantime, please feel free to reach out.`
+                <div class="footer">
+                  <p>We deeply appreciate your contribution to our storytelling journey. Your story is now in the caring and capable hands of our dedicated team. As we embark on this creative endeavor, we share in your anticipation and excitement.</p>
+                  <p>Keep an eye on your inbox for the latest updates and for the grand reveal of your completed article. Should you have any questions in the meantime, please feel free to reach out.</p>
+                </div>
+              </body>
+              </html> `
           }
         }
       }
@@ -211,20 +269,40 @@ class ArticleService {
           Data: 'Exciting News: Your Article Has Entered the Editorial Stage!'
         },
         Body: {
-          Text: {
-            Data: `We are thrilled to inform you that your article, titled "${title}", has officially entered the editorial process! This is a significant milestone in bringing your story to life, and our team of expert editors is eager to work their magic.
+          Html: {
+            Data: `
+            <html>
+            <head>
+              <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; }
+                h1 { color: #333366; }
+                p { color: #333333; }
+                .header-section { margin-bottom: 20px; }
+                .content-section { margin-top: 20px; }
+                .footer { margin-top: 30px; font-style: italic; }
+              </style>
+            </head>
+            <body>
+              <div class="header-section">
+                <h1>We are thrilled to inform you that your article, titled "${title}", has officially entered the editorial process!</h1>
+              </div>
 
-            What Happens Next?
-            Our editorial team will meticulously review and polish your article, ensuring every word resonates with your intended message and audience. We're dedicated to preserving the authenticity of your narrative while enhancing its clarity and impact.
+              <div class="content-section">
+                <h2>What Happens Next?</h2>
+                <p>Our editorial team will meticulously review and polish your article, ensuring every word resonates with your intended message and audience. We're dedicated to preserving the authenticity of your narrative while enhancing its clarity and impact.</p>
 
-            Stay Tuned for Updates
-            Throughout this process, we'll keep you in the loop with regular updates. You'll be the first to know when your article is ready for the next step.
+                <h2>Stay Tuned for Updates</h2>
+                <p>Throughout this process, we'll keep you in the loop with regular updates. You'll be the first to know when your article is ready for the next step.</p>
+              </div>
 
-            We're honored to be a part of your storytelling journey and can't wait to showcase your article. Thank you for trusting us with your experiences and ideas.
-
-            Warm regards,
-
-            The Journova Team`
+              <div class="footer">
+                <p>We're honored to be a part of your storytelling journey and can't wait to showcase your article. Thank you for trusting us with your experiences and ideas.</p>
+                <p>Warm regards,</p>
+                <p>The Journova Team</p>
+              </div>
+            </body>
+            </html>
+            `
           }
         }
       }
@@ -249,28 +327,47 @@ class ArticleService {
           Data: 'Your Story Awaits: Review Your Completed Article Now!' // Email subject
         },
         Body: {
-          Text: {
-            Data: `We are excited to announce that your article, “[Article Title]”, is now beautifully crafted and ready for your review!
+          Html: {
+            Data: `
+            <html>
+              <head>
+                <style>
+                  body { font-family: Arial, sans-serif; line-height: 1.6; }
+                  h1 { color: #333366; }
+                  p { color: #333333; }
+                  .header-section { margin-bottom: 20px; }
+                  .content-section { margin-top: 20px; }
+                  .footer { margin-top: 30px; font-style: italic; }
+                  a { color: #1a0dab; text-decoration: none; }
+                </style>
+              </head>
+              <body>
+                <div class="header-section">
+                  <h1>We are excited to announce that your article, “[Article Title]”, is now beautifully crafted and ready for your review!</h1>
+                </div>
 
-            Ready for the Spotlight
-            Our editorial team has worked diligently to ensure that your story is told in the most compelling and authentic way possible. We believe that it's not just an article; it's a piece of art that reflects your unique journey and insights.
+                <div class="content-section">
+                  <h2>Ready for the Spotlight</h2>
+                  <p>Our editorial team has worked diligently to ensure that your story is told in the most compelling and authentic way possible. We believe that it's not just an article; it's a piece of art that reflects your unique journey and insights.</p>
 
-            Review and Submit for Publication
-            It’s now your turn to take a look at the final piece. Please review the article at your earliest convenience to give it your stamp of approval.
+                  <h2>Review and Submit for Publication</h2>
+                  <p>It’s now your turn to take a look at the final piece. Please review the article at your earliest convenience to give it your stamp of approval.</p>
+                  <a href="http://localhost:3000/preview/${slug}">Review Your Article</a>
 
-            🔗 http://localhost:3000/preview/${slug}
+                  <h2>Next Steps</h2>
+                  <p>Once you review and approve the article, we will proceed with publishing it, showcasing your story to the world. We can’t wait to share it with our audience!</p>
+                </div>
 
-            Next Steps
-            Once you review and approve the article, we will proceed with publishing it, showcasing your story to the world. We can’t wait to share it with our audience!
+                <div class="footer">
+                  <p>Questions or Feedback? If you have any questions or need assistance, our team is here to help. Feel free to reach out at any time.</p>
+                  <p>Thank you for sharing your story with us and for being an integral part of this creative journey. We are thrilled to be a part of bringing your voice to a wider audience.</p>
+                  <p>Warm regards,</p>
+                  <p>The Journova Team</p>
+                </div>
+              </body>
+              </html>
 
-            Questions or Feedback?
-            If you have any questions or need assistance, our team is here to help. Feel free to reach out at any time.
-
-            Thank you for sharing your story with us and for being an integral part of this creative journey. We are thrilled to be a part of bringing your voice to a wider audience.
-
-            Warm regards,
-
-            The Journova Team` // Email body
+            ` // Email body
           }
         }
       }
