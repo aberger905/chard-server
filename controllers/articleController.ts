@@ -246,6 +246,26 @@ class ArticleController {
       }
     }
 
+    publish = async (req: Request, res: Response, next: NextFunction) => {
+      const { version, articleId } = req.body;
+
+      try {
+        if (version === 'original') {
+          await this.articleService.publish(articleId)
+          return next();
+        } else if (version === 'revised') {
+          await this.articleService.publishRevision(articleId);
+          return next()
+        } else {
+          return 'no version found'
+        }
+
+      } catch (e) {
+        console.error('error in publish middleware');
+        return next()
+      }
+    }
+
 }
 
 export default ArticleController;

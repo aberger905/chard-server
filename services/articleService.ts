@@ -493,6 +493,34 @@ class ArticleService {
 
   }
 
+  publish = async (articleId: number) => {
+     const queryString = 'UPDATE articles SET published = $1 WHERE article_id = $2'
+     const values = [true, articleId];
+
+     try {
+      await db.query(queryString, values);
+     } catch (e) {
+      console.error('error updating in published service', e);
+     }
+  }
+
+  publishRevision = async (articleId: number) => {
+    const slug = `title-of-article-${articleId}`;
+    const article = await this.getSavedArticle(slug);
+
+    const revisedArticle = article.revised;
+
+    const queryString = 'UPDATE articles SET title = $1, content = $2, published = $3 WHERE article_id = $4';
+    const values = [revisedArticle.title, JSON.stringify(revisedArticle.content), true, articleId];
+
+    try {
+      await db.query(queryString, values);
+    } catch (e) {
+      console.error('error inside publish revision service', e);
+    }
+  };
+
+
 
 }
 

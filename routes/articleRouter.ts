@@ -22,6 +22,10 @@ router.post('/email', articleController.sendEmail, (req: Request, res: Response)
   res.sendStatus(200);
 })
 
+router.post('/publish', articleController.publish, (req: Request, res: Response) => {
+  res.sendStatus(200);
+})
+
 router.get('/:slug', articleController.getSavedArticle, (req: Request, res: Response) => {
   const { article } = res.locals;
   res.status(200).json(article);
