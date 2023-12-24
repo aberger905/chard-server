@@ -452,7 +452,7 @@ class ArticleService {
 
                   <h2>Review the Changes</h2>
                   <p>Please take a moment to review the revised version of your article. Your final approval is crucial before we move forward with publishing.</p>
-                  <a href="http://localhost:3000/preview/revision/${slug}">Review Your Revised Article</a>
+                  <a href="http://localhost:3000/revision/${slug}">Review Your Revised Article</a>
 
                   <h2>Approving Your Article</h2>
                   <p>Once you're satisfied with the revisions, let us know, and we'll prepare your article for its public debut. We're excited to showcase the updated version of your story!</p>

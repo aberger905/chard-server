@@ -125,7 +125,6 @@ class ArticleController {
 
     getSavedArticle = async (req: Request, res: Response, next: NextFunction ) => {
       const { slug } = req.params;
-      console.log('SLUG FROM REQ PARAMS', slug)
       try {
         const response = await this.articleService.getSavedArticle(slug);
         res.locals.article = response;
@@ -212,7 +211,6 @@ class ArticleController {
       res.locals.articleId = articleId;
       const article = revisedArticle[0].message.content;
 
-      console.log('INSIDE SAVE REVISED ARTICLE CONTROLLER')
       try {
         await this.articleService.saveRevisedArticle(article, articleId);
         next();
@@ -225,7 +223,6 @@ class ArticleController {
        const { articleId } = res.locals;
        const { slug } = req.params;
 
-       console.log('INSIDE SEND REVISION EMAIL CONTROLLER')
       try {
         const email = await this.articleService.getEmailByArticleId(articleId);
         await this.articleService.sendRevisionEmail(email, slug);
