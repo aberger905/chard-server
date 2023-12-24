@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import * as dotenv from 'dotenv';
 import slugify from '../utils/slugify';
 import schedule from 'node-schedule';
+import deslugify from '../utils/deslugify';
 dotenv.config();
 
 class ArticleController {
@@ -124,7 +125,7 @@ class ArticleController {
 
     getSavedArticle = async (req: Request, res: Response, next: NextFunction ) => {
       const { slug } = req.params;
-
+      console.log('SLUG FROM REQ PARAMS', slug)
       try {
         const response = await this.articleService.getSavedArticle(slug);
         res.locals.article = response;
@@ -189,7 +190,64 @@ class ArticleController {
       }
     }
 
+    revise = async (req: Request, res: Response, next: NextFunction) => {
+      const { article } = res.locals;
+      const { input } = req.body;
+      console.log('INSIDE REVISE CONTROLLER HERES article', article)
 
+      try {
+        const response = await this.articleService.generateRevision(article, input);
+        res.locals.revisedArticle = response;
+        next();
+      } catch (e) {
+        console.error('error in revise article controller', e)
+      }
+
+    }
+
+    saveRevisedArticle = async (req: Request, res: Response, next: NextFunction) => {
+      const { revisedArticle } = res.locals;
+      const { slug } = req.params;
+      const articleId = deslugify(slug);
+      res.locals.articleId = articleId;
+      const article = revisedArticle[0].message.content;
+
+      console.log('INSIDE SAVE REVISED ARTICLE CONTROLLER')
+      try {
+        await this.articleService.saveRevisedArticle(article, articleId);
+        next();
+      } catch (e) {
+        console.error('error in saveRevisedArticle service', e);
+      }
+    }
+
+    sendRevisionEmail = async (req: Request, res: Response, next: NextFunction) => {
+       const { articleId } = res.locals;
+       const { slug } = req.params;
+
+       console.log('INSIDE SEND REVISION EMAIL CONTROLLER')
+      try {
+        const email = await this.articleService.getEmailByArticleId(articleId);
+        await this.articleService.sendRevisionEmail(email, slug);
+        next();
+      } catch (e) {
+        console.error('error in sendRevisionEmail controller', e)
+      }
+
+
+    }
+
+    getSavedRevisedArticle = async (req: Request, res: Response, next: NextFunction) => {
+      const { slug } = req.params;
+      const articleId = deslugify(slug);
+      try {
+        const response = await this.articleService.getSavedRevisedArticle(articleId);
+        res.locals.article = response;
+        next()
+      } catch (e) {
+        console.error('error inside getSavedRevisedArticle controller', e);
+      }
+    }
 
 }
 

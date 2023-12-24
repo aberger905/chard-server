@@ -31,6 +31,7 @@ class ArticleService {
     return prompt;
   }
 
+
   saveSubmission = async (input: any) => {
     const { email } = input;
     const queryString = 'INSERT INTO submissions (email, inputs) VALUES ($1, $2) RETURNING submission_id';
@@ -380,6 +381,117 @@ class ArticleService {
     }
   };
 
+
+
+  private createRevisionPrompt = (article: any, input: string) => {
+    const prompt = `As a journalist, you are tasked with revising the given news article. Please provide a detailed revision of the attached news article based on the user's feedback. Focus on areas highlighted by the user, such as specific factual corrections, adjustments in tone, style, or additional context. Aim to address all points raised while maintaining the article's overall coherence and journalistic integrity. Any subjective or stylistic changes should align with the article's objective nature. Your thorough and balanced approach in integrating these revisions is crucial. the title of the news article is: ${article.title}, the content of the news article is: ${article.content}. Here are the revision notes straight from the user: ${input}. Please return the fully revised article back. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.`
+
+    return prompt;
+  }
+
+  generateRevision = async (article: any, input: string) => {
+    const prompt = this.createRevisionPrompt(article, input);
+    console.log('REVISION PROMPT', prompt)
+    const apiKey = process.env.AI_API_KEY;
+    console.log('INSIDE GENERATE REVISION SERVICE')
+      try {
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+          model: "gpt-4",
+          messages: [{ "role": "user", "content": prompt }],
+          temperature: 0.7
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          }
+        });
+        return response.data.choices;
+      } catch (error: any) {
+        console.error('Error making request:', error.toJSON());
+      }
+  }
+
+  saveRevisedArticle = async (article: any, articleId: any) => {
+    const queryString = 'UPDATE articles SET revised = $1 WHERE article_id = $2';
+    const values = [article, articleId];
+    console.log('INSIDE SAVE REVISED ARTICLE SERVICE, ARTICLE TO BE SAVED', article)
+    try {
+      await db.query(queryString, values);
+    } catch (e) {
+      console.error('error in saveRevisedArticle service', e);
+    }
+  };
+
+  sendRevisionEmail = async (email: string, slug: string) => {
+    const params = {
+      Source: 'support@journova.org', // verified SES sender email
+      Destination: {
+        ToAddresses: [email] // The recipient's email address
+      },
+      Message: {
+        Subject: {
+          Data: "Your Revised Article is Ready for Review - Take a Look!"
+        },
+        Body: {
+          Html: {
+            Data: `
+            <html>
+              <head>
+                <style>
+                  /* Your existing styles */
+                </style>
+              </head>
+              <body>
+                <div class="header-section">
+                  <h1>Your revised article, “[Article Title]”, is now ready for review!</h1>
+                </div>
+
+                <div class="content-section">
+                  <h2>Refined for Perfection</h2>
+                  <p>Following your valuable feedback, our team has fine-tuned your article. We've focused on making the revisions you've requested to ensure your story is shared just the way you envisioned it.</p>
+
+                  <h2>Review the Changes</h2>
+                  <p>Please take a moment to review the revised version of your article. Your final approval is crucial before we move forward with publishing.</p>
+                  <a href="http://localhost:3000/preview/revision/${slug}">Review Your Revised Article</a>
+
+                  <h2>Approving Your Article</h2>
+                  <p>Once you're satisfied with the revisions, let us know, and we'll prepare your article for its public debut. We're excited to showcase the updated version of your story!</p>
+                </div>
+
+                <div class="footer">
+                  <p>Questions or additional feedback? Our team is always here to assist you. Feel free to reach out to us anytime.</p>
+                  <p>Thank you for collaborating with us on this journey. Your story, in its best form, is just steps away from being shared with the world.</p>
+                  <p>Best regards,</p>
+                  <p>The Journova Team</p>
+                </div>
+              </body>
+            </html>
+
+             `
+          }
+        }
+      }
+    };
+
+    try {
+      const response = await ses.sendEmail(params).promise();
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  }
+
+  getSavedRevisedArticle = async (articleId: any) => {
+   const queryString = 'SELECT * FROM articles WHERE article_id = $1'
+   const values = [articleId];
+
+   try {
+    const response = await db.query(queryString, values);
+    return response.rows[0];
+   } catch (e) {
+    console.error('error in the getSavedRevisedArticle Service', e)
+   }
+
+  }
 
 
 }

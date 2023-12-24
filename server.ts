@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import newsRouter from './routes/newsRouter';
 import articleRouter from './routes/articleRouter';
 import webhookRouter from './routes/webhookRouter';
+import revisionRouter from './routes/revisionRouter';
 import * as dotenv from 'dotenv';
 import connectDB from './db/db.config';
 dotenv.config();
@@ -33,6 +34,7 @@ app.use(express.json());
 
 app.use('/news', newsRouter);
 app.use('/article', articleRouter);
+app.use('/revision', revisionRouter);
 app.use('*', (req: Request, res: Response) => res.status(400).send('not found'));
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
