@@ -5,6 +5,7 @@ import AWS from '../AWS.config';
 import * as dotenv from 'dotenv';
 dotenv.config();
 const ses = new AWS.SES();
+const s3 = new AWS.S3();
 
 interface ArticleInput {
   fullName: string;
@@ -22,10 +23,10 @@ class ArticleService {
     let prompt: string;
 
     if (articleType == 'featured') {
-      prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. As a journalist, you are tasked with writing a featured article around 1000 words. This article should revolve around a broader theme, incorporating the story and perspectives of <${fullName}>, who uses <${pronouns}> pronouns. The broader topic is: <${subject}>. Within this context, <${fullName}>'s specific experience is: <${story}>. Utilize any quotes from <${fullName}>'s experience to enrich the article. Ensure the focus remains on the larger theme while highlighting <${fullName}>'s contribution to this topic. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.
+      prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. As a journalist, you are tasked with writing a featured article around 100 words. This article should revolve around a broader theme, incorporating the story and perspectives of <${fullName}>, who uses <${pronouns}> pronouns. The broader topic is: <${subject}>. Within this context, <${fullName}>'s specific experience is: <${story}>. Utilize any quotes from <${fullName}>'s experience to enrich the article. Ensure the focus remains on the larger theme while highlighting <${fullName}>'s contribution to this topic. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.
       `
     } else {
-      prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. You are now a news journalist writing a story. Please write roughly a 100 word news article based on the input provided. The person who should be the sole focus of the article: <${fullName}> , pronouns to refer to them by are <${pronouns}>. The subject of this article will be: <${subject}> Information relevant to the article: <${story}>.  Please do not make up any information. Feel free to add information or speak about the broader subject at hand. If you can find any quotes from the user’s story, please use them. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.`
+      prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. You are now a news journalist writing a story. Please write roughly a 1000 word news article based on the input provided. The person who should be the sole focus of the article: <${fullName}> , pronouns to refer to them by are <${pronouns}>. The subject of this article will be: <${subject}> Information relevant to the article: <${story}>.  Please do not make up any information. Feel free to add information or speak about the broader subject at hand. If you can find any quotes from the user’s story, please use them. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.`
     }
 
     return prompt;
@@ -78,12 +79,12 @@ class ArticleService {
 
   }
 
-  saveGeneratedArticle = async (article: any, submissionId: number, plan: string) => {
+  saveGeneratedArticle = async (article: any, submissionId: number, plan: string, imageUrl: any) => {
   const { title, content } = article;
   const stringifiedContent = JSON.stringify(content);
 
-  const queryString = 'INSERT INTO articles (submission_id, title, content, plan) VALUES ($1, $2, $3, $4) RETURNING article_id'
-  const values = [submissionId, title, stringifiedContent, plan]
+  const queryString = 'INSERT INTO articles (submission_id, title, content, plan, image) VALUES ($1, $2, $3, $4, $5) RETURNING article_id'
+  const values = [submissionId, title, stringifiedContent, plan, imageUrl];
 
   try {
     const response = await db.query(queryString, values);
@@ -381,6 +382,66 @@ class ArticleService {
     }
   };
 
+  sendArticleEmail = async (slug: string, email: string) => {
+    const params = {
+      Source: 'support@journova.org', // Replace with your verified SES sender email
+      Destination: {
+        ToAddresses: [email] // The recipient's email address
+      },
+      Message: {
+        Subject: {
+          Data: 'Your Custom Article is Complete: Ready for Download!' // Email subject
+        },
+        Body: {
+          Html: {
+            Data: `
+            <html>
+            <head>
+            <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; }
+            h1 { color: #333366; }
+            p { color: #333333; }
+            .header-section { margin-bottom: 20px; }
+            .content-section { margin-top: 20px; }
+            .footer { margin-top: 30px; font-style: italic; }
+            a { color: #1a0dab; text-decoration: none; }
+          </style>
+            </head>
+            <body>
+              <div class="header-section">
+                <h1>Your Personalized Article is Now Ready in PDF Format!</h1>
+              </div>
+
+              <div class="content-section">
+                <h2>A Story Just for You</h2>
+                <p>We've transformed the story we crafted about you into a convenient PDF format, perfect for saving, printing, or sharing with friends and family.</p>
+
+                <h2>Download and Discover</h2>
+                <p>Click the link below to download and read your article. We hope you find it captures your story just as you envisioned.</p>
+                <a href="http://localhost:3000/download/${slug}">Download Your Article</a>
+
+                <h2>Share Your Thoughts</h2>
+                <p>After reading, we'd love to hear your thoughts or any feedback you might have.</p>
+              </div>
+
+              <div class="footer">
+                <!-- Your existing footer content -->
+              </div>
+            </body>
+          </html>
+            ` // Email body
+          }
+        }
+      }
+    };
+
+    try {
+      const response = await ses.sendEmail(params).promise();
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  }
+
 
 
   private createRevisionPrompt = (article: any, input: string) => {
@@ -519,6 +580,44 @@ class ArticleService {
       console.error('error inside publish revision service', e);
     }
   };
+
+  uploadImage = async (fileContent: any, fileName: string, mimeType: string) => {
+    console.log('HERE INSIDE UPLOADIMAGE SERVICE');
+    const params = {
+      Bucket: 'journova',
+      Key: fileName,
+      Body: fileContent,
+      ContentType: mimeType
+    };
+
+    try {
+      const data = await s3.upload(params).promise();
+      console.log('File uploaded successfully', data.Location);
+      return data.Location;
+    } catch (e) {
+      console.error('Error uploading file', e);
+    }
+  }
+
+  // uploadImageToS3 = async (file: Express.Multer.File) => {
+  //   console.log('HERE INSIDE UPLOADIMAGE SERVICE');
+  //   const params = {
+  //     Bucket: 'journova',
+  //     Key: file.originalname,
+  //     Body: file.buffer, // multer provides the file buffer directly
+  //     ContentType: file.mimetype
+  //   };
+
+  //   try {
+  //     const data = await s3.upload(params).promise();
+  //     console.log('File uploaded successfully', data.Location);
+  //     return data.Location;
+  //   } catch (e) {
+  //     console.error('Error uploading file', e);
+  //     throw e; // Ensure to throw the error so that the calling function can handle it
+  //   }
+  // };
+
 
 
 

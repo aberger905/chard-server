@@ -1,6 +1,9 @@
 import express, { Request, Response, Router } from 'express';
 const router: Router = express.Router();
 import ArticleController from '../controllers/articleController';
+import multer from 'multer';
+const upload = multer({dest: 'uploads/'})
+
 
 const articleController = new ArticleController()
 
@@ -25,6 +28,12 @@ router.post('/email', articleController.sendEmail, (req: Request, res: Response)
 router.post('/publish', articleController.publish, (req: Request, res: Response) => {
   res.status(200).json('success');
 })
+
+// router.post('/image', upload.single('headerImage'), (req, res) => {
+//   console.log(req.file);
+//   res.send('ok');
+// });
+router.post('/image', upload.single('headerImage'), articleController.uploadImage);
 
 router.get('/:slug', articleController.getSavedArticle, (req: Request, res: Response) => {
   const { article } = res.locals;

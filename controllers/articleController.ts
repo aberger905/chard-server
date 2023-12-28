@@ -3,6 +3,7 @@ import ArticleService from '../services/articleService'
 import Stripe from 'stripe';
 import * as dotenv from 'dotenv';
 import slugify from '../utils/slugify';
+import fs from 'fs';
 import schedule from 'node-schedule';
 import deslugify from '../utils/deslugify';
 dotenv.config();
@@ -31,6 +32,28 @@ class ArticleController {
         res.status(500).send('Server error');
       }
     }
+    // saveSubmission = async (req: Request, res: Response, next: NextFunction) => {
+    //   const input = req.body;
+    //   const imageFile = req.file; // The uploaded image file
+
+    //   if (imageFile === undefined) {
+    //     return 'error image File undefined'
+    //   }
+
+    //   try {
+    //     // Upload imageFile to S3 and get the URL
+    //     const imageUrl = await this.articleService.uploadImageToS3(imageFile);
+    //     input.imageUrl = imageUrl;
+    //     // Save submission with image URL
+    //     const submissionId = await this.articleService.saveSubmission(input);
+
+    //     res.locals.submissionId = submissionId;
+    //     return next();
+    //   } catch (e) {
+    //     console.error('error saving submission', e);
+    //     res.status(500).send('Server error');
+    //   }
+    // };
 
     getSubmission = async (req: Request, res: Response, next: NextFunction) => {
       const { submissionId } = res.locals;
@@ -108,12 +131,13 @@ class ArticleController {
   }
 
     saveGeneratedArticle = async (req: Request, res: Response, next: NextFunction ) => {
-    const { article, submissionId, plan } = res.locals;
+    const { article, submissionId, plan, inputs } = res.locals;
+    const imageUrl = inputs.headerImage[0] || null;
     console.log('HERE INSIDE SAVEGENERATEDARTICLE, ARTICLE FROM RES LOCALCS', article);
     const parsedArticle = JSON.parse(article[0].message.content);
 
     try {
-      const response = await this.articleService.saveGeneratedArticle(parsedArticle, submissionId, plan);
+      const response = await this.articleService.saveGeneratedArticle(parsedArticle, submissionId, plan, imageUrl);
       res.locals.newArticleId = response;
       return next();
     } catch (e) {
@@ -142,6 +166,7 @@ class ArticleController {
 
       try {
         const email = await this.articleService.getEmailByArticleId(articleId);
+        
         await this.articleService.sendEmail(slug, email);
         res.status(200).send('article successfully sent');
       } catch (e) {
@@ -150,7 +175,7 @@ class ArticleController {
     }
 
     scheduleEmails = async (req: Request, res: Response, next: NextFunction) => {
-      const { inputs, article, newArticleId } = res.locals;
+      const { inputs, article, newArticleId, plan } = res.locals;
       const { email } = inputs;
 
       const parsedArticle = JSON.parse(article[0].message.content);
@@ -159,29 +184,34 @@ class ArticleController {
 
       try {
         // Send confirmation email immediately
+
         await this.articleService.sendConfirmationEmail(email);
 
-        // if (premium === true) {
-        //   schedule.scheduleJob(Date.now() + 15 * 60 * 60 * 1000, async () => {
-        //     await this.articleService.sendEditorialEmail(email, title);
-        //   });
+        if (plan === 'premium') {
+          //15 * 60 * 60 * 1000
+          schedule.scheduleJob(Date.now() + 30000, async () => {
+            await this.articleService.sendEditorialEmail(email, title);
+          });
 
-
-        //   schedule.scheduleJob(Date.now() + 20 * 60 * 60 * 1000, async () => {
-        //     await this.articleService.sendReviewEmail(slug, email);
-        //   });
-        // } else {
-
-        // }
-        //44 * 60 * 60 * 1000
+          //20 * 60 * 60 * 1000
+          schedule.scheduleJob(Date.now() + 60000, async () => {
+            await this.articleService.sendReviewEmail(slug, email);
+          });
+        } else {
+            //44 * 60 * 60 * 1000
         schedule.scheduleJob(Date.now() + 30000, async () => {
           await this.articleService.sendEditorialEmail(email, title);
         });
 
         //67 * 60 * 60 * 1000
         schedule.scheduleJob(Date.now() + 60000, async () => {
-          await this.articleService.sendReviewEmail(slug, email);
+          if (plan === 'article') {
+            await this.articleService.sendArticleEmail(slug, email)
+          } else {
+            await this.articleService.sendReviewEmail(slug, email);
+          }
         });
+        }
       } catch (e) {
         console.error('Error sending confirmation email or scheduling', e);
         next(e);
@@ -265,6 +295,29 @@ class ArticleController {
         return next()
       }
     }
+
+    uploadImage = async (req: Request, res: Response, next: NextFunction) => {
+      console.log('HERE INSIDE UPLOADIMAGE CONTROLLER');
+      try {
+        if (!req.file) {
+          throw new Error('No file uploaded');
+        }
+        const file = req.file; // The uploaded file information.
+        const fileName = file.originalname; // Get the original file name.
+        const mimeType = file.mimetype;
+
+        const fileContent = fs.readFileSync(file.path);
+
+        const url = await this.articleService.uploadImage(fileContent, fileName, mimeType);
+
+        fs.unlinkSync(file.path);
+
+        res.status(200).json({ imageUrl: url });
+      } catch (e) {
+        console.error('error inside uploadImage controller', e);
+        res.status(500).send('Error uploading image');
+      }
+    };
 
 }
 

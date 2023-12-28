@@ -30,7 +30,7 @@ app.use(limiter);
 app.use(cookieParser());
 
 app.use('/webhook', webhookRouter);
-app.use(express.json());
+app.use(express.json()); //must come after webhookRouter because it needs raw data
 
 app.use('/news', newsRouter);
 app.use('/article', articleRouter);
