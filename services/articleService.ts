@@ -8,7 +8,8 @@ const ses = new AWS.SES();
 const s3 = new AWS.S3();
 
 interface ArticleInput {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   pronouns: string;
   subject: string;
   story: string;
@@ -18,15 +19,15 @@ interface ArticleInput {
 class ArticleService {
 
   private createPrompt = (input: ArticleInput): string => {
-    const { fullName, pronouns, subject, story, articleType } = input;
+    const { firstName, lastName, pronouns, subject, story, articleType } = input;
 
     let prompt: string;
 
     if (articleType == 'featured') {
-      prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. As a journalist, you are tasked with writing a featured article around 100 words. This article should revolve around a broader theme, incorporating the story and perspectives of <${fullName}>, who uses <${pronouns}> pronouns. The broader topic is: <${subject}>. Within this context, <${fullName}>'s specific experience is: <${story}>. Utilize any quotes from <${fullName}>'s experience to enrich the article. Ensure the focus remains on the larger theme while highlighting <${fullName}>'s contribution to this topic. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.
+      prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. As a journalist, you are tasked with writing a featured article around 100 words. This article should revolve around a broader theme, incorporating the story and perspectives of <${firstName} ${lastName}>, who uses <${pronouns}> pronouns. The broader topic is: <${subject}>. Within this context, <$${firstName} ${lastName}>'s specific experience is: <${story}>. Utilize any quotes from <$${firstName} ${lastName}>'s experience to enrich the article. Ensure the focus remains on the larger theme while highlighting <${firstName} ${lastName}>'s contribution to this topic. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.
       `
     } else {
-      prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. You are now a news journalist writing a story. Please write roughly a 1000 word news article based on the input provided. The person who should be the sole focus of the article: <${fullName}> , pronouns to refer to them by are <${pronouns}>. The subject of this article will be: <${subject}> Information relevant to the article: <${story}>.  Please do not make up any information. Feel free to add information or speak about the broader subject at hand. If you can find any quotes from the user’s story, please use them. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.`
+      prompt = `The following prompt has information inserted from our users. You will know when you’re reading user information because it is between <>. For example, <this is a user response>. You are now a news journalist writing a story. Please write roughly a 1000 word news article based on the input provided. The person who should be the sole focus of the article: <${firstName} ${lastName}> , pronouns to refer to them by are <${pronouns}>. The subject of this article will be: <${subject}> Information relevant to the article: <${story}>.  Please do not make up any information. Feel free to add information or speak about the broader subject at hand. If you can find any quotes from the user’s story, please use them. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.`
     }
 
     return prompt;
@@ -207,7 +208,137 @@ class ArticleService {
     }
   };
 
-  sendConfirmationEmail = async (email: string) => {
+  sendConfirmationEmail = async (email: string, firstName: string) => {
+    const params = {
+      Source: 'support@journova.org', // verified SES sender email
+      Destination: {
+        ToAddresses: [email] // The recipient's email address
+      },
+      Message: {
+        Subject: {
+          Data:`Congratulations, ${firstName}! Your Story Received`
+        },
+        Body: {
+          Html: {
+            Data: `
+            <html>
+            <head>
+                <style>
+                    body {
+                        background-color: white;
+                        color: #333333;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 5px;
+                        background-color: #ffffff;
+                    }
+                    .email-header {
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .email-content {
+                        line-height: 1.5;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        margin-top: 30px;
+                        text-align: center;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="YOUR_LOGO_URL" alt="Journova Logo" width="150">
+                    </div>
+                    <div class="email-content">
+                        <p>Thank you, <b>${firstName}</b>, for the opportunity to write your story!</p>
+
+                        <p>In the next 72 hours, the team at <b>Journova</b> will be reviewing your information, conducting research, and drafting an article for editorial review.</p>
+
+                        <p>Once complete, you will receive your article by email. You are free to download and print it as you wish!</p>
+
+                        <p>Please respond to this email with any questions or comments.</p>
+                    </div>
+                    <div class="email-footer">
+                        <p>Your friends at <b>Journova</b></p>
+                    </div>
+                </div>
+            </body>
+            </html> `
+          }
+        }
+      }
+    };
+
+    try {
+      const response = await ses.sendEmail(params).promise();
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  }
+
+  sendConfirmationEmail2 = async (email: string) => {
+    const params = {
+      Source: 'support@journova.org', // verified SES sender email
+      Destination: {
+        ToAddresses: [email] // The recipient's email address
+      },
+      Message: {
+        Subject: {
+          Data: "Your Story's Journey Begins - Submission Confirmed!"
+        },
+        Body: {
+          Html: {
+            Data: `
+            <html>
+              <head>
+                <style>
+                  body { font-family: Arial, sans-serif; line-height: 1.6; }
+                  h1 { color: #333366; }
+                  p { color: #333333; }
+                  .content-section { margin-top: 20px; }
+                  .footer { margin-top: 30px; font-style: italic; }
+                </style>
+              </head>
+              <body>
+                <h1>Congratulations on Taking the First Step!</h1>
+
+                <p>We are delighted to inform you that we have received your story submission. Our team of skilled journalists is brimming with excitement and ready to bring your unique narrative to life.</p>
+
+                <div class="content-section">
+                  <h2>Here's What Happens Next:</h2>
+                  <p><strong>Stay Informed:</strong> We believe in keeping you closely involved in every step of the process. You can expect regular updates via email, keeping you informed of the progress we make with your article.</p>
+                  <p><strong>Review and Approval:</strong> Crafting your story is a collaborative process. Once our team has intricately woven your narrative, you will have the opportunity to review it. This stage ensures that your voice and message shine through in every word.</p>
+                  <p><strong>Ready for the World:</strong> With your approval, we will take the final steps to prepare your article for publishing. The moment your story is ready to be shared with the world, you will be the first to know!</p>
+                </div>
+
+                <div class="footer">
+                  <p>We deeply appreciate your contribution to our storytelling journey. Your story is now in the caring and capable hands of our dedicated team. As we embark on this creative endeavor, we share in your anticipation and excitement.</p>
+                  <p>Keep an eye on your inbox for the latest updates and for the grand reveal of your completed article. Should you have any questions in the meantime, please feel free to reach out.</p>
+                </div>
+              </body>
+              </html> `
+          }
+        }
+      }
+    };
+
+    try {
+      const response = await ses.sendEmail(params).promise();
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  }
+
+  sendConfirmationEmail3 = async (email: string) => {
     const params = {
       Source: 'support@journova.org', // verified SES sender email
       Destination: {

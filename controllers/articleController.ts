@@ -133,7 +133,10 @@ class ArticleController {
 
     saveGeneratedArticle = async (req: Request, res: Response, next: NextFunction ) => {
     const { article, submissionId, plan, inputs } = res.locals;
-    const imageUrl = inputs.headerImage[0] || null;
+    let imageUrl = null;
+    if (Array.isArray(inputs.headerImage) && inputs.headerImage.length > 0) {
+        imageUrl = inputs.headerImage[0];
+    }
     console.log('HERE INSIDE SAVEGENERATEDARTICLE, ARTICLE FROM RES LOCALCS', article);
     const parsedArticle = JSON.parse(article[0].message.content);
 
@@ -177,7 +180,7 @@ class ArticleController {
 
     scheduleEmails = async (req: Request, res: Response, next: NextFunction) => {
       const { inputs, article, newArticleId, plan } = res.locals;
-      const { email } = inputs;
+      const { email, firstName } = inputs;
 
       const parsedArticle = JSON.parse(article[0].message.content);
       const { title } = parsedArticle
@@ -185,12 +188,12 @@ class ArticleController {
 
       try {
        //initial confirmation email
-        await this.articleService.sendConfirmationEmail(email);
+        await this.articleService.sendConfirmationEmail(email, firstName);
 
         // Schedule other emails based on plan
         if (plan === 'premium') {
-          await agenda.schedule('in 30 seconds', 'send editorial email', { email, title });
-          await agenda.schedule('in 60 seconds', 'send review email', { slug, email });
+          await agenda.schedule('in 60 seconds', 'send editorial email', { email, title });
+          await agenda.schedule('in 2 minutes', 'send review email', { slug, email });
         } else {
           await agenda.schedule('in 30 seconds', 'send editorial email', { email, title });
           if (plan === 'article') {
