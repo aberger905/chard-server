@@ -9,8 +9,10 @@ import webhookRouter from './routes/webhookRouter';
 import revisionRouter from './routes/revisionRouter';
 import * as dotenv from 'dotenv';
 import connectDB from './db/db.config';
+import agenda from './agendaConfig';
 dotenv.config();
 connectDB();
+agenda.start();
 
 
 

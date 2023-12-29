@@ -5,6 +5,7 @@ import * as dotenv from 'dotenv';
 import slugify from '../utils/slugify';
 import fs from 'fs';
 import schedule from 'node-schedule';
+import agenda from '../agendaConfig';
 import deslugify from '../utils/deslugify';
 dotenv.config();
 
@@ -166,7 +167,7 @@ class ArticleController {
 
       try {
         const email = await this.articleService.getEmailByArticleId(articleId);
-        
+
         await this.articleService.sendEmail(slug, email);
         res.status(200).send('article successfully sent');
       } catch (e) {
@@ -183,40 +184,61 @@ class ArticleController {
       const slug = slugify(title, newArticleId);
 
       try {
-        // Send confirmation email immediately
-
+       //initial confirmation email
         await this.articleService.sendConfirmationEmail(email);
 
+        // Schedule other emails based on plan
         if (plan === 'premium') {
-          //15 * 60 * 60 * 1000
-          schedule.scheduleJob(Date.now() + 30000, async () => {
-            await this.articleService.sendEditorialEmail(email, title);
-          });
-
-          //20 * 60 * 60 * 1000
-          schedule.scheduleJob(Date.now() + 60000, async () => {
-            await this.articleService.sendReviewEmail(slug, email);
-          });
+          await agenda.schedule('in 30 seconds', 'send editorial email', { email, title });
+          await agenda.schedule('in 60 seconds', 'send review email', { slug, email });
         } else {
-            //44 * 60 * 60 * 1000
-        schedule.scheduleJob(Date.now() + 30000, async () => {
-          await this.articleService.sendEditorialEmail(email, title);
-        });
-
-        //67 * 60 * 60 * 1000
-        schedule.scheduleJob(Date.now() + 60000, async () => {
+          await agenda.schedule('in 30 seconds', 'send editorial email', { email, title });
           if (plan === 'article') {
-            await this.articleService.sendArticleEmail(slug, email)
+            await agenda.schedule('in 60 seconds', 'send article email', { slug, email });
           } else {
-            await this.articleService.sendReviewEmail(slug, email);
+            await agenda.schedule('in 60 seconds', 'send review email', { slug, email });
           }
-        });
         }
       } catch (e) {
-        console.error('Error sending confirmation email or scheduling', e);
+        console.error('Error scheduling emails with Agenda:', e);
         next(e);
-        // Consider handling the error more explicitly, maybe passing it to next() for centralized error handling
       }
+
+      // try {
+      //   // Send confirmation email immediately
+
+      //   await this.articleService.sendConfirmationEmail(email);
+
+      //   if (plan === 'premium') {
+      //     //15 * 60 * 60 * 1000
+      //     schedule.scheduleJob(Date.now() + 30000, async () => {
+      //       await this.articleService.sendEditorialEmail(email, title);
+      //     });
+
+      //     //20 * 60 * 60 * 1000
+      //     schedule.scheduleJob(Date.now() + 60000, async () => {
+      //       await this.articleService.sendReviewEmail(slug, email);
+      //     });
+      //   } else {
+      //       //44 * 60 * 60 * 1000
+      //   schedule.scheduleJob(Date.now() + 30000, async () => {
+      //     await this.articleService.sendEditorialEmail(email, title);
+      //   });
+
+      //   //67 * 60 * 60 * 1000
+      //   schedule.scheduleJob(Date.now() + 60000, async () => {
+      //     if (plan === 'article') {
+      //       await this.articleService.sendArticleEmail(slug, email)
+      //     } else {
+      //       await this.articleService.sendReviewEmail(slug, email);
+      //     }
+      //   });
+      //   }
+      // } catch (e) {
+      //   console.error('Error sending confirmation email or scheduling', e);
+      //   next(e);
+      //   // Consider handling the error more explicitly, maybe passing it to next() for centralized error handling
+      // }
     }
 
     revise = async (req: Request, res: Response, next: NextFunction) => {

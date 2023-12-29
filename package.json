@@ -23,6 +23,7 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
+    "agenda": "^5.0.0",
     "aws-sdk": "^2.1520.0",
     "axios": "^1.6.2",
     "cookie-parser": "^1.4.6",
