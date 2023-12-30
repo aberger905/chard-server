@@ -14,7 +14,11 @@ dotenv.config();
 connectDB();
 agenda.start();
 
-
+const corsOptions = {
+  origin: 'http://localhost:3000', // or '*' for allowing any origin (use with caution)
+  credentials: true, // if your frontend sends credentials like cookies or tokens
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // adjust as per your requirements
+};
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -26,8 +30,8 @@ const limiter = rateLimit({
 const app = express();
 const port = process.env.PORT || 3001;
 
+app.use(cors(corsOptions));
 app.use(helmet());
-app.use(cors());
 app.use(limiter);
 app.use(cookieParser());
 
