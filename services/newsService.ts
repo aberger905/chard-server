@@ -23,7 +23,7 @@ class NewsService {
 
   async getArticles () {
     const articles: { [key: string]: any[] } = {};
-    const categories = ['business', 'entertainment', 'technology', 'government', 'sports', 'world', 'video', 'finance'];
+    const categories = ['business', 'entertainment', 'technology', 'government', 'sports', 'world', 'video', 'finance', 'health'];
     for (const category of categories) {
         articles[category] = await this.fetchArticlesByCategory(category);
         await delay(500);

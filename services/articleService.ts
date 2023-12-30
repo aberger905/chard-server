@@ -1044,11 +1044,11 @@ class ArticleService {
   }
 
   publish = async (articleId: number) => {
-     const queryString = 'UPDATE articles SET published = $1 WHERE article_id = $2'
+     const queryString = 'UPDATE articles SET published = $1, date_published = CURRENT_DATE WHERE article_id = $2'
      const values = [true, articleId];
-
      try {
       await db.query(queryString, values);
+      return;
      } catch (e) {
       console.error('error updating in published service', e);
      }
