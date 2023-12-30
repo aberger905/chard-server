@@ -25,7 +25,7 @@ router.post('/email', articleController.sendEmail, (req: Request, res: Response)
   res.status(200).json('success');
 })
 
-router.post('/publish', articleController.publish, (req: Request, res: Response) => {
+router.post('/publish', articleController.publish, articleController.sendEmail, (req: Request, res: Response) => {
   res.status(200).json('success');
 })
 

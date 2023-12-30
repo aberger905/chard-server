@@ -170,8 +170,7 @@ class ArticleController {
 
       try {
         const email = await this.articleService.getEmailByArticleId(articleId);
-
-        await this.articleService.sendPublishedEmail(email, slug, title);
+        await agenda.schedule('in 60 seconds', 'send published email', { email, slug, title });
         res.status(200).send('article successfully sent');
       } catch (e) {
         console.error('error in sendEmail controller', e);
