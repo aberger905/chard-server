@@ -155,7 +155,7 @@ class ArticleService {
       },
       Message: {
         Subject: {
-          Data: '🌟 Your Story is Now Published! Discover Your Article on [Platform/Website Name] 🌟'
+          Data: '🌟 Your Story is Now Published! Discover Your Article on Vista World News 🌟'
         },
         Body: {
           Html: {
@@ -208,7 +208,7 @@ class ArticleService {
     }
   };
 
-  sendConfirmationEmail = async (email: string, firstName: string) => {
+  sendPublishedEmail = async (email: string, slug: string, title: string) => {
     const params = {
       Source: 'support@journova.org', // verified SES sender email
       Destination: {
@@ -216,7 +216,7 @@ class ArticleService {
       },
       Message: {
         Subject: {
-          Data:`Congratulations, ${firstName}! Your Story Received`
+          Data:`🌟 Your Story is Now Published! Discover Your Article on Vista World News 🌟`
         },
         Body: {
           Html: {
@@ -225,7 +225,7 @@ class ArticleService {
             <head>
                 <style>
                     body {
-                        background-color: white;
+                        background-color: #ffffff;
                         color: #333333;
                         font-family: Arial, sans-serif;
                         margin: 0;
@@ -256,7 +256,88 @@ class ArticleService {
             <body>
                 <div class="email-container">
                     <div class="email-header">
-                        <img src="YOUR_LOGO_URL" alt="Journova Logo" width="150">
+                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                    </div>
+                    <div class="email-content">
+                        <p>The article titled “${title}” has been published!</p>
+
+                        <p>Here is the direct link: <a href="${process.env.NEWS_DOMAIN}/${slug}"><b>Your Headline Story</b></a></p>
+
+                        <p><b>PRINT IT! POST IT! SHARE IT!</b></p>
+
+                        <p>Thank you for sharing your story and for allowing us to craft it into something we’re both proud of!</p>
+
+                        <p>Finally, we’re always looking to improve the experience of our contributors like you!  If you would be willing to share your thoughts, here’s a 3 question survey:  <Survey Hyperlink></p>
+
+                        <p>Thanks again,</p>
+                    </div>
+                    <div class="email-footer">
+                        <p>Your friends at <b>Journova</b></p>
+                    </div>
+                </div>
+            </body>
+            </html> `
+          }
+        }
+      }
+    };
+
+    try {
+      const response = await ses.sendEmail(params).promise();
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  }
+
+  sendConfirmationEmail = async (email: string, firstName: string) => {
+    const params = {
+      Source: 'support@journova.org', // verified SES sender email
+      Destination: {
+        ToAddresses: [email] // The recipient's email address
+      },
+      Message: {
+        Subject: {
+          Data:`Congratulations, ${firstName}! Your Story Received`
+        },
+        Body: {
+          Html: {
+            Data: `
+            <html>
+            <head>
+                <style>
+                    body {
+                        background-color: #ffffff;
+                        color: #333333;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 5px;
+                        background-color: #ffffff;
+                    }
+                    .email-header {
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .email-content {
+                        line-height: 1.5;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        margin-top: 30px;
+                        text-align: center;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
                     </div>
                     <div class="email-content">
                         <p>Thank you, <b>${firstName}</b>, for the opportunity to write your story!</p>
@@ -285,7 +366,7 @@ class ArticleService {
     }
   }
 
-  sendConfirmationEmail2 = async (email: string) => {
+  sendConfirmationEmail2 = async (email: string, firstName: string) => {
     const params = {
       Source: 'support@journova.org', // verified SES sender email
       Destination: {
@@ -293,149 +374,63 @@ class ArticleService {
       },
       Message: {
         Subject: {
-          Data: "Your Story's Journey Begins - Submission Confirmed!"
-        },
-        Body: {
-          Html: {
-            Data: `
-            <html>
-              <head>
-                <style>
-                  body { font-family: Arial, sans-serif; line-height: 1.6; }
-                  h1 { color: #333366; }
-                  p { color: #333333; }
-                  .content-section { margin-top: 20px; }
-                  .footer { margin-top: 30px; font-style: italic; }
-                </style>
-              </head>
-              <body>
-                <h1>Congratulations on Taking the First Step!</h1>
-
-                <p>We are delighted to inform you that we have received your story submission. Our team of skilled journalists is brimming with excitement and ready to bring your unique narrative to life.</p>
-
-                <div class="content-section">
-                  <h2>Here's What Happens Next:</h2>
-                  <p><strong>Stay Informed:</strong> We believe in keeping you closely involved in every step of the process. You can expect regular updates via email, keeping you informed of the progress we make with your article.</p>
-                  <p><strong>Review and Approval:</strong> Crafting your story is a collaborative process. Once our team has intricately woven your narrative, you will have the opportunity to review it. This stage ensures that your voice and message shine through in every word.</p>
-                  <p><strong>Ready for the World:</strong> With your approval, we will take the final steps to prepare your article for publishing. The moment your story is ready to be shared with the world, you will be the first to know!</p>
-                </div>
-
-                <div class="footer">
-                  <p>We deeply appreciate your contribution to our storytelling journey. Your story is now in the caring and capable hands of our dedicated team. As we embark on this creative endeavor, we share in your anticipation and excitement.</p>
-                  <p>Keep an eye on your inbox for the latest updates and for the grand reveal of your completed article. Should you have any questions in the meantime, please feel free to reach out.</p>
-                </div>
-              </body>
-              </html> `
-          }
-        }
-      }
-    };
-
-    try {
-      const response = await ses.sendEmail(params).promise();
-    } catch (error) {
-      console.error('Error sending email:', error);
-    }
-  }
-
-  sendConfirmationEmail3 = async (email: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data: "Your Story's Journey Begins - Submission Confirmed!"
-        },
-        Body: {
-          Html: {
-            Data: `
-            <html>
-              <head>
-                <style>
-                  body { font-family: Arial, sans-serif; line-height: 1.6; }
-                  h1 { color: #333366; }
-                  p { color: #333333; }
-                  .content-section { margin-top: 20px; }
-                  .footer { margin-top: 30px; font-style: italic; }
-                </style>
-              </head>
-              <body>
-                <h1>Congratulations on Taking the First Step!</h1>
-
-                <p>We are delighted to inform you that we have received your story submission. Our team of skilled journalists is brimming with excitement and ready to bring your unique narrative to life.</p>
-
-                <div class="content-section">
-                  <h2>Here's What Happens Next:</h2>
-                  <p><strong>Stay Informed:</strong> We believe in keeping you closely involved in every step of the process. You can expect regular updates via email, keeping you informed of the progress we make with your article.</p>
-                  <p><strong>Review and Approval:</strong> Crafting your story is a collaborative process. Once our team has intricately woven your narrative, you will have the opportunity to review it. This stage ensures that your voice and message shine through in every word.</p>
-                  <p><strong>Ready for the World:</strong> With your approval, we will take the final steps to prepare your article for publishing. The moment your story is ready to be shared with the world, you will be the first to know!</p>
-                </div>
-
-                <div class="footer">
-                  <p>We deeply appreciate your contribution to our storytelling journey. Your story is now in the caring and capable hands of our dedicated team. As we embark on this creative endeavor, we share in your anticipation and excitement.</p>
-                  <p>Keep an eye on your inbox for the latest updates and for the grand reveal of your completed article. Should you have any questions in the meantime, please feel free to reach out.</p>
-                </div>
-              </body>
-              </html> `
-          }
-        }
-      }
-    };
-
-    try {
-      const response = await ses.sendEmail(params).promise();
-    } catch (error) {
-      console.error('Error sending email:', error);
-    }
-  }
-
-  sendEditorialEmail = async (email: string, title: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data: 'Exciting News: Your Article Has Entered the Editorial Stage!'
+          Data:`Congratulations, ${firstName}! Your Story Received`
         },
         Body: {
           Html: {
             Data: `
             <html>
             <head>
-              <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; }
-                h1 { color: #333366; }
-                p { color: #333333; }
-                .header-section { margin-bottom: 20px; }
-                .content-section { margin-top: 20px; }
-                .footer { margin-top: 30px; font-style: italic; }
-              </style>
+                <style>
+                    body {
+                        background-color: #ffffff;
+                        color: #333333;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 5px;
+                        background-color: #ffffff;
+                    }
+                    .email-header {
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .email-content {
+                        line-height: 1.5;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        margin-top: 30px;
+                        text-align: center;
+                    }
+                </style>
             </head>
             <body>
-              <div class="header-section">
-                <h1>We are thrilled to inform you that your article, titled "${title}", has officially entered the editorial process!</h1>
-              </div>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                    </div>
+                    <div class="email-content">
+                        <p>Thank you, <b>${firstName}</b>, for the opportunity to write your story!</p>
 
-              <div class="content-section">
-                <h2>What Happens Next?</h2>
-                <p>Our editorial team will meticulously review and polish your article, ensuring every word resonates with your intended message and audience. We're dedicated to preserving the authenticity of your narrative while enhancing its clarity and impact.</p>
+                        <p>In the next 48 hours, the team at <b>Journova</b> will be reviewing your information, conducting research, and drafting an article for editorial review.</p>
 
-                <h2>Stay Tuned for Updates</h2>
-                <p>Throughout this process, we'll keep you in the loop with regular updates. You'll be the first to know when your article is ready for the next step.</p>
-              </div>
+                        <p>Please look for a draft of that article in your email. Once received, we request that you review the article, agree to the terms and conditions and approve the article for publication.</p>
 
-              <div class="footer">
-                <p>We're honored to be a part of your storytelling journey and can't wait to showcase your article. Thank you for trusting us with your experiences and ideas.</p>
-                <p>Warm regards,</p>
-                <p>The Journova Team</p>
-              </div>
+                        <p>Please respond to this email with any questions or comments.</p>
+                    </div>
+                    <div class="email-footer">
+                        <p>Your friends at <b>Journova</b></p>
+                    </div>
+                </div>
             </body>
-            </html>
-            `
+            </html> `
           }
         }
       }
@@ -448,59 +443,71 @@ class ArticleService {
     }
   }
 
-  sendReviewEmail = async (slug: string, email: string) => {
-
+  sendConfirmationEmail3 = async (email: string, firstName: string) => {
     const params = {
-      Source: 'support@journova.org', // Replace with your verified SES sender email
+      Source: 'support@journova.org', // verified SES sender email
       Destination: {
         ToAddresses: [email] // The recipient's email address
       },
       Message: {
         Subject: {
-          Data: 'Your Story Awaits: Review Your Completed Article Now!' // Email subject
+          Data:`Congratulations, ${firstName}! Your Story Received`
         },
         Body: {
           Html: {
             Data: `
             <html>
-              <head>
+            <head>
                 <style>
-                  body { font-family: Arial, sans-serif; line-height: 1.6; }
-                  h1 { color: #333366; }
-                  p { color: #333333; }
-                  .header-section { margin-bottom: 20px; }
-                  .content-section { margin-top: 20px; }
-                  .footer { margin-top: 30px; font-style: italic; }
-                  a { color: #1a0dab; text-decoration: none; }
+                    body {
+                        background-color: #ffffff;
+                        color: #333333;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 5px;
+                        background-color: #ffffff;
+                    }
+                    .email-header {
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .email-content {
+                        line-height: 1.5;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        margin-top: 30px;
+                        text-align: center;
+                    }
                 </style>
-              </head>
-              <body>
-                <div class="header-section">
-                  <h1>We are excited to announce that your article, “[Article Title]”, is now beautifully crafted and ready for your review!</h1>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                    </div>
+                    <div class="email-content">
+                        <p>Thank you, <b>${firstName}</b>, for the opportunity to write your story!</p>
+
+                        <p>In the next few hours, the team at <b>Journova</b> will be reviewing your information, conducting research, and drafting an article for editorial review.</p>
+
+                        <p>Please look for a draft of that article in your email within <b>12 hours</b>. Once received, we request that you review the article, agree to the terms and conditions and approve the article for publication or request a revision.</p>
+
+                        <p>Please respond to this email with any questions or comments.</p>
+                    </div>
+                    <div class="email-footer">
+                        <p>Your friends at <b>Journova</b></p>
+                    </div>
                 </div>
-
-                <div class="content-section">
-                  <h2>Ready for the Spotlight</h2>
-                  <p>Our editorial team has worked diligently to ensure that your story is told in the most compelling and authentic way possible. We believe that it's not just an article; it's a piece of art that reflects your unique journey and insights.</p>
-
-                  <h2>Review and Submit for Publication</h2>
-                  <p>It’s now your turn to take a look at the final piece. Please review the article at your earliest convenience to give it your stamp of approval.</p>
-                  <a href="http://localhost:3000/preview/${slug}">Review Your Article</a>
-
-                  <h2>Next Steps</h2>
-                  <p>Once you review and approve the article, we will proceed with publishing it, showcasing your story to the world. We can’t wait to share it with our audience!</p>
-                </div>
-
-                <div class="footer">
-                  <p>Questions or Feedback? If you have any questions or need assistance, our team is here to help. Feel free to reach out at any time.</p>
-                  <p>Thank you for sharing your story with us and for being an integral part of this creative journey. We are thrilled to be a part of bringing your voice to a wider audience.</p>
-                  <p>Warm regards,</p>
-                  <p>The Journova Team</p>
-                </div>
-              </body>
-              </html>
-
-            ` // Email body
+            </body>
+            </html> `
           }
         }
       }
@@ -511,56 +518,389 @@ class ArticleService {
     } catch (error) {
       console.error('Error sending email:', error);
     }
-  };
+  }
 
-  sendArticleEmail = async (slug: string, email: string) => {
+  sendEditorialEmail = async (email: string, firstName: string, title: string) => {
     const params = {
-      Source: 'support@journova.org', // Replace with your verified SES sender email
+      Source: 'support@journova.org', // verified SES sender email
       Destination: {
         ToAddresses: [email] // The recipient's email address
       },
       Message: {
         Subject: {
-          Data: 'Your Custom Article is Complete: Ready for Download!' // Email subject
+          Data:`Status Update – Your Story Has Been Written!`
         },
         Body: {
           Html: {
             Data: `
             <html>
             <head>
-            <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; }
-            h1 { color: #333366; }
-            p { color: #333333; }
-            .header-section { margin-bottom: 20px; }
-            .content-section { margin-top: 20px; }
-            .footer { margin-top: 30px; font-style: italic; }
-            a { color: #1a0dab; text-decoration: none; }
-          </style>
+                <style>
+                    body {
+                        background-color: #ffffff;
+                        color: #333333;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 5px;
+                        background-color: #ffffff;
+                    }
+                    .email-header {
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .email-content {
+                        line-height: 1.5;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        margin-top: 30px;
+                        text-align: center;
+                    }
+                </style>
             </head>
             <body>
-              <div class="header-section">
-                <h1>Your Personalized Article is Now Ready in PDF Format!</h1>
-              </div>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                    </div>
+                    <div class="email-content">
+                        <p>The article titled <b>“${title}”</b> has been written.</p>
 
-              <div class="content-section">
-                <h2>A Story Just for You</h2>
-                <p>We've transformed the story we crafted about you into a convenient PDF format, perfect for saving, printing, or sharing with friends and family.</p>
+                        <p>Are you excited, ${firstName}?</p>
 
-                <h2>Download and Discover</h2>
-                <p>Click the link below to download and read your article. We hope you find it captures your story just as you envisioned.</p>
-                <a href="http://localhost:3000/download/${slug}">Download Your Article</a>
+                        <p>Once our editorial team reviews and polishes your article, we’ll complete the order and send it to you.</p>
 
-                <h2>Share Your Thoughts</h2>
-                <p>After reading, we'd love to hear your thoughts or any feedback you might have.</p>
-              </div>
-
-              <div class="footer">
-                <!-- Your existing footer content -->
-              </div>
+                        <p>Please respond to this email with any questions or comments.</p>
+                    </div>
+                    <div class="email-footer">
+                        <p>Your friends at <b>Journova</b></p>
+                    </div>
+                </div>
             </body>
-          </html>
-            ` // Email body
+            </html> `
+          }
+        }
+      }
+    };
+
+    try {
+      const response = await ses.sendEmail(params).promise();
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  }
+
+  sendEditorialEmail2 = async (email: string, firstName: string, title: string) => {
+    const params = {
+      Source: 'support@journova.org', // verified SES sender email
+      Destination: {
+        ToAddresses: [email] // The recipient's email address
+      },
+      Message: {
+        Subject: {
+          Data:`Status Update – Your Story Has Been Written!`
+        },
+        Body: {
+          Html: {
+            Data: `
+            <html>
+            <head>
+                <style>
+                    body {
+                        background-color: #ffffff;
+                        color: #333333;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 5px;
+                        background-color: #ffffff;
+                    }
+                    .email-header {
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .email-content {
+                        line-height: 1.5;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        margin-top: 30px;
+                        text-align: center;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                    </div>
+                    <div class="email-content">
+                        <p>The article titled <b>“${title}”</b> has been written.</p>
+
+                        <p>Are you excited, ${firstName}?</p>
+
+                        <p>Once our editorial team reviews and polishes your article, we’ll complete the order and send it to you for review, acceptance of terms and conditions and publication.  </p>
+
+                        <p>Please respond to this email with any questions or comments.</p>
+                    </div>
+                    <div class="email-footer">
+                        <p>Your friends at <b>Journova</b></p>
+                    </div>
+                </div>
+            </body>
+            </html> `
+          }
+        }
+      }
+    };
+
+    try {
+      const response = await ses.sendEmail(params).promise();
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  }
+
+
+
+
+
+  sendReviewEmail = async (email: string, firstName: string, title: string, slug: string) => {
+    const params = {
+      Source: 'support@journova.org', // verified SES sender email
+      Destination: {
+        ToAddresses: [email] // The recipient's email address
+      },
+      Message: {
+        Subject: {
+          Data:`Your Story Has Been Delivered!`
+        },
+        Body: {
+          Html: {
+            Data: `
+            <html>
+            <head>
+                <style>
+                    body {
+                        background-color: #ffffff;
+                        color: #333333;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 5px;
+                        background-color: #ffffff;
+                    }
+                    .email-header {
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .email-content {
+                        line-height: 1.5;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        margin-top: 30px;
+                        text-align: center;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                    </div>
+                    <div class="email-content">
+                        <p>The article titled <b>“${title}”</b> is attached below!</p>
+
+                        <p><b>PRINT IT! FRAME IT!</b></p>
+
+                        <p><a href="${process.env.JOURNOVA_DOMAIN}/my-article/${slug}">My Story</a></p>
+
+                        <p>Thank you for sharing your story and for allowing us to craft it into something we’re both proud of!</p>
+
+                        <p>Finally, we’re always looking to improve the experience of our contributors like you ${firstName}!  If you would be willing to share your thoughts, here’s a 3 question survey:  <Survey Hyperlink></p>
+
+                        <p>Thanks again,</p>
+                    </div>
+                    <div class="email-footer">
+                        <p>Your friends at <b>Journova</b></p>
+                    </div>
+                </div>
+            </body>
+            </html> `
+          }
+        }
+      }
+    };
+
+    try {
+      const response = await ses.sendEmail(params).promise();
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  }
+
+  sendReviewEmail2 = async (email: string, firstName: string, title: string, slug: string) => {
+    const params = {
+      Source: 'support@journova.org', // verified SES sender email
+      Destination: {
+        ToAddresses: [email] // The recipient's email address
+      },
+      Message: {
+        Subject: {
+          Data:` Status Update – Your Story Has Been Approved!`
+        },
+        Body: {
+          Html: {
+            Data: `
+            <html>
+            <head>
+                <style>
+                    body {
+                        background-color: #ffffff;
+                        color: #333333;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 5px;
+                        background-color: #ffffff;
+                    }
+                    .email-header {
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .email-content {
+                        line-height: 1.5;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        margin-top: 30px;
+                        text-align: center;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                    </div>
+                    <div class="email-content">
+                        <p>The article titled <b>“${title}”</b> has been approved by our editorial team.</p>
+
+                        <p>To review and approve for publication click here: <a href="${process.env.JOURNOVA_DOMAIN}/preview/${slug}"><b>My Story</b></a></p>
+
+                        <p>Once approved, the article will be scheduled for publication within the next 24 hours and you’ll receive a confirmation with a link to the news source.</p>
+
+                        <p>Please respond to this email with any questions or comments.</p>
+                    </div>
+                    <div class="email-footer">
+                        <p>Your friends at <b>Journova</b></p>
+                    </div>
+                </div>
+            </body>
+            </html> `
+          }
+        }
+      }
+    };
+
+    try {
+      const response = await ses.sendEmail(params).promise();
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  }
+
+  sendReviewEmail3 = async (email: string, firstName: string, title: string, slug: string) => {
+    const params = {
+      Source: 'support@journova.org', // verified SES sender email
+      Destination: {
+        ToAddresses: [email] // The recipient's email address
+      },
+      Message: {
+        Subject: {
+          Data:` Status Update – Your Story Has Been Approved!`
+        },
+        Body: {
+          Html: {
+            Data: `
+            <html>
+            <head>
+                <style>
+                    body {
+                        background-color: #ffffff;
+                        color: #333333;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 5px;
+                        background-color: #ffffff;
+                    }
+                    .email-header {
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .email-content {
+                        line-height: 1.5;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        margin-top: 30px;
+                        text-align: center;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                    </div>
+                    <div class="email-content">
+                        <p>The article titled <b>“${title}”</b> has been approved by our editorial team.</p>
+
+                        <p>To review and approve for publication click here: <a href="${process.env.JOURNOVA_DOMAIN}/preview/${slug}"><b>My Story</b></a></p>
+
+                        <p>Once approved, the article will be scheduled for publication within the next 24 hours and you’ll receive a confirmation with a link to the news source.</p>
+
+                        <p>Please respond to this email with any questions or comments.</p>
+                    </div>
+                    <div class="email-footer">
+                        <p>Your friends at <b>Journova</b></p>
+                    </div>
+                </div>
+            </body>
+            </html> `
           }
         }
       }
@@ -622,44 +962,63 @@ class ArticleService {
       },
       Message: {
         Subject: {
-          Data: "Your Revised Article is Ready for Review - Take a Look!"
+          Data:`Your Revised Article is Ready for Review - Take a Look!`
         },
         Body: {
           Html: {
             Data: `
             <html>
-              <head>
+            <head>
                 <style>
-                  /* Your existing styles */
+                    body {
+                        background-color: #ffffff;
+                        color: #333333;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 5px;
+                        background-color: #ffffff;
+                    }
+                    .email-header {
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .email-content {
+                        line-height: 1.5;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        margin-top: 30px;
+                        text-align: center;
+                    }
                 </style>
-              </head>
-              <body>
-                <div class="header-section">
-                  <h1>Your revised article, “[Article Title]”, is now ready for review!</h1>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                    </div>
+                    <div class="email-content">
+                        <p>Following your valuable feedback, our team has fine-tuned your article. We've focused on making the revisions you've requested to ensure your story is shared just the way you envisioned it.</p>
+
+                        <h2>Review the Changes</h2>
+                        <p>Please take a moment to review the revised version of your article. Your final approval is crucial before we move forward with publishing.</p>
+                        <a href="${process.env.JOURNOVA_DOMAIN}/revision/${slug}">Review Your Revised Article</a>
+
+                        <p>Please respond to this email with any questions or comments.</p>
+                    </div>
+                    <div class="email-footer">
+                        <p>Your friends at <b>Journova</b></p>
+                    </div>
                 </div>
-
-                <div class="content-section">
-                  <h2>Refined for Perfection</h2>
-                  <p>Following your valuable feedback, our team has fine-tuned your article. We've focused on making the revisions you've requested to ensure your story is shared just the way you envisioned it.</p>
-
-                  <h2>Review the Changes</h2>
-                  <p>Please take a moment to review the revised version of your article. Your final approval is crucial before we move forward with publishing.</p>
-                  <a href="http://localhost:3000/revision/${slug}">Review Your Revised Article</a>
-
-                  <h2>Approving Your Article</h2>
-                  <p>Once you're satisfied with the revisions, let us know, and we'll prepare your article for its public debut. We're excited to showcase the updated version of your story!</p>
-                </div>
-
-                <div class="footer">
-                  <p>Questions or additional feedback? Our team is always here to assist you. Feel free to reach out to us anytime.</p>
-                  <p>Thank you for collaborating with us on this journey. Your story, in its best form, is just steps away from being shared with the world.</p>
-                  <p>Best regards,</p>
-                  <p>The Journova Team</p>
-                </div>
-              </body>
-            </html>
-
-             `
+            </body>
+            </html> `
           }
         }
       }
@@ -729,27 +1088,6 @@ class ArticleService {
       console.error('Error uploading file', e);
     }
   }
-
-  // uploadImageToS3 = async (file: Express.Multer.File) => {
-  //   console.log('HERE INSIDE UPLOADIMAGE SERVICE');
-  //   const params = {
-  //     Bucket: 'journova',
-  //     Key: file.originalname,
-  //     Body: file.buffer, // multer provides the file buffer directly
-  //     ContentType: file.mimetype
-  //   };
-
-  //   try {
-  //     const data = await s3.upload(params).promise();
-  //     console.log('File uploaded successfully', data.Location);
-  //     return data.Location;
-  //   } catch (e) {
-  //     console.error('Error uploading file', e);
-  //     throw e; // Ensure to throw the error so that the calling function can handle it
-  //   }
-  // };
-
-
 
 
 }

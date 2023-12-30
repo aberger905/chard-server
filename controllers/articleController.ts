@@ -171,7 +171,7 @@ class ArticleController {
       try {
         const email = await this.articleService.getEmailByArticleId(articleId);
 
-        await this.articleService.sendEmail(slug, email);
+        await this.articleService.sendPublishedEmail(email, slug, title);
         res.status(200).send('article successfully sent');
       } catch (e) {
         console.error('error in sendEmail controller', e);
@@ -187,21 +187,40 @@ class ArticleController {
       const slug = slugify(title, newArticleId);
 
       try {
-       //initial confirmation email
-        await this.articleService.sendConfirmationEmail(email, firstName);
+      //  //initial confirmation email
+      //   await this.articleService.sendConfirmationEmail(email, firstName);
+
+        if (plan === 'article') {
+          await this.articleService.sendConfirmationEmail(email, firstName);
+
+          await agenda.schedule('in 30 seconds', 'send editorial email', { email, firstName, title });
+          await agenda.schedule('in 60 seconds', 'send review email', { email, firstName, title, slug });
+
+        } else if (plan === 'published') {
+          await this.articleService.sendConfirmationEmail2(email, firstName);
+
+          await agenda.schedule('in 30 seconds', 'send editorial email 2', { email, firstName, title });
+          await agenda.schedule('in 60 seconds', 'send review email 2', { email, firstName, title, slug });
+
+        } else if (plan === 'premium') {
+          await this.articleService.sendConfirmationEmail3(email, firstName);
+
+          await agenda.schedule('in 30 seconds', 'send editorial email 2', { email, firstName, title });
+          await agenda.schedule('in 60 seconds', 'send review email 3', { email, firstName, title, slug });
+        }
 
         // Schedule other emails based on plan
-        if (plan === 'premium') {
-          await agenda.schedule('in 60 seconds', 'send editorial email', { email, title });
-          await agenda.schedule('in 2 minutes', 'send review email', { slug, email });
-        } else {
-          await agenda.schedule('in 30 seconds', 'send editorial email', { email, title });
-          if (plan === 'article') {
-            await agenda.schedule('in 60 seconds', 'send article email', { slug, email });
-          } else {
-            await agenda.schedule('in 60 seconds', 'send review email', { slug, email });
-          }
-        }
+        // if (plan === 'premium') {
+        //   await agenda.schedule('in 60 seconds', 'send editorial email', { email, title });
+        //   await agenda.schedule('in 2 minutes', 'send review email', { slug, email });
+        // } else {
+        //   await agenda.schedule('in 30 seconds', 'send editorial email', { email, title });
+        //   if (plan === 'article') {
+        //     await agenda.schedule('in 60 seconds', 'send article email', { slug, email });
+        //   } else {
+        //     await agenda.schedule('in 60 seconds', 'send review email', { slug, email });
+        //   }
+        // }
       } catch (e) {
         console.error('Error scheduling emails with Agenda:', e);
         next(e);
