@@ -946,7 +946,6 @@ class ArticleService {
   saveRevisedArticle = async (article: any, articleId: any) => {
     const queryString = 'UPDATE articles SET revised = $1 WHERE article_id = $2';
     const values = [article, articleId];
-    console.log('INSIDE SAVE REVISED ARTICLE SERVICE, ARTICLE TO BE SAVED', article)
     try {
       await db.query(queryString, values);
     } catch (e) {

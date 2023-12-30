@@ -266,7 +266,10 @@ class ArticleController {
     revise = async (req: Request, res: Response, next: NextFunction) => {
       const { article } = res.locals;
       const { input } = req.body;
-      console.log('INSIDE REVISE CONTROLLER HERES article', article)
+
+      if (article.revised !== null) {
+        return res.status(400).send('article already revised');
+      }
 
       try {
         const response = await this.articleService.generateRevision(article, input);
@@ -299,7 +302,7 @@ class ArticleController {
 
       try {
         const email = await this.articleService.getEmailByArticleId(articleId);
-        await this.articleService.sendRevisionEmail(email, slug);
+        await agenda.schedule('in 60 seconds', 'send revision email', { email, slug });
         next();
       } catch (e) {
         console.error('error in sendRevisionEmail controller', e)

@@ -38,5 +38,10 @@ agenda.define('send review email 3', async (job: any, done) => {
   done();
 });
 
+agenda.define('send revision email', async (job: any, done) => {
+  const { email, slug } = job.attrs.data;
+  await articleService.sendRevisionEmail(email, slug)
+})
+
 
 export default agenda
