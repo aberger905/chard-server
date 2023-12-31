@@ -1,5 +1,6 @@
 import Agenda from 'agenda';
 import ArticleService from './services/articleService';
+const axios = require('axios');
 import * as dotenv from 'dotenv';
 dotenv.config();
 const articleService = new ArticleService();
@@ -49,6 +50,17 @@ agenda.define('send published email', async (job: any, done) => {
   await articleService.sendPublishedEmail(email, slug, title);
   done();
 });
+
+
+agenda.define('update news', async () => {
+  try {
+    const response = await axios.get(`${process.env.SERVER_DOMAIN}/news`);
+    console.log('Internal API call response:', response.data);
+  } catch (error) {
+    console.error('Error in internal API call:', error);
+  }
+});
+
 
 
 export default agenda

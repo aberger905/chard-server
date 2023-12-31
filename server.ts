@@ -12,7 +12,6 @@ import connectDB from './db/db.config';
 import agenda from './agendaConfig';
 dotenv.config();
 connectDB();
-agenda.start();
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -48,6 +47,9 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   return res.status(errorObj.status).json(errorObj.message);
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log('Server listening on port', port);
+
+  await agenda.start();
+  await agenda.every('12 hours', 'update news')
 });
