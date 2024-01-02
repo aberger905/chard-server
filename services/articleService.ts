@@ -59,6 +59,34 @@ class ArticleService {
 
   }
 
+  checkSubmission = async (submissionId: string | number) => {
+    const queryString = 'SELECT processed FROM submissions WHERE submission_id = $1';
+    const values = [submissionId];
+
+    try {
+      const response = await db.query(queryString, values);
+      if (response.rows.length > 0) {
+        return response.rows[0].processed; // returns a boolean
+      } else {
+        return false;
+      }
+    } catch (e) {
+      console.error('error checking submission in checksubmission service', e);
+    }
+  }
+
+  updateProcessedSubmission = async (submissionId: string | number) => {
+    const queryString = 'UPDATE submissions SET processed = TRUE WHERE submission_id = $1';
+    const values = [submissionId];
+
+    try {
+        await db.query(queryString, values);
+    } catch (e) {
+        console.error('Error updating submission processed status', e);
+        throw e;
+    }
+  }
+
   generateArticle = async (input: ArticleInput) => {
     const apiKey = process.env.AI_API_KEY;
     const prompt = this.createPrompt(input)

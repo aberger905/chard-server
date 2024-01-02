@@ -56,6 +56,25 @@ class ArticleController {
     //   }
     // };
 
+    checkSubmission = async (req: Request, res: Response, next: NextFunction) => {
+      const { submissionId } = res.locals;
+
+      try {
+          const isProcessed = await this.articleService.checkSubmission(submissionId);
+
+          if (isProcessed) {
+              return res.status(400).send('Submission already processed');
+          } else {
+              await this.articleService.updateProcessedSubmission(submissionId);
+              next();
+          }
+
+      } catch (e) {
+          console.error('error checking submission in checkSubmission controller', e);
+          return next(e);
+      }
+  }
+
     getSubmission = async (req: Request, res: Response, next: NextFunction) => {
       const { submissionId } = res.locals;
 

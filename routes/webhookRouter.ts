@@ -9,7 +9,7 @@ const articleController = new ArticleController();
 const router: Router = express.Router();
 
 
-router.post('/confirm', express.raw({type: 'application/json'}), webhookController.handleStripeEvent, articleController.getSubmission, articleController.generateArticle, articleController.saveGeneratedArticle, articleController.scheduleEmails, (req: Request, res: Response) => {
+router.post('/confirm', express.raw({type: 'application/json'}), webhookController.handleStripeEvent, articleController.checkSubmission, articleController.getSubmission, articleController.generateArticle, articleController.saveGeneratedArticle, articleController.scheduleEmails, (req: Request, res: Response) => {
   res.status(200).send('success')
 });
 
