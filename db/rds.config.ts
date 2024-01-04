@@ -3,13 +3,14 @@ require('dotenv').config();
 
 
 const pool = new Pool({
-  user: process.env.AWS_USER,
-  host: process.env.AWS_HOST,
-  database: process.env.AWS_DATABASE,
-  password: process.env.AWS_PASSWORD,
-  port: process.env.AWS_PORT,
+  // user: process.env.AWS_USER,
+  // host: process.env.AWS_HOST,
+  // database: process.env.AWS_DATABASE,
+  // password: process.env.AWS_PASSWORD,
+  // port: process.env.AWS_PORT,
+  connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false // For development purposes only; for production, set up a proper SSL configuration
+    rejectUnauthorized: false
   }
 });
 
