@@ -205,7 +205,7 @@ class ArticleService {
 
               <h2>Experience Your Published Work</h2>
               <p>You can view and share your published article by visiting the link below:</p>
-              <a href="http://localhost:5173/${slug}">View Your Article</a>
+              <a href="${process.env.NEWS_DOMAIN}/${slug}">View Your Article</a>
 
               <h2>Share Your Achievement</h2>
               <p>Feel free to share this link with friends, family, and your network. Your unique insights and experiences are now out there to educate, inspire, and resonate with readers across the globe.</p>
@@ -289,13 +289,15 @@ class ArticleService {
                     <div class="email-content">
                         <p>The article titled “${title}” has been published!</p>
 
-                        <p>Here is the direct link: <a href="${process.env.NEWS_DOMAIN}/${slug}"><b>Your Headline Story</b></a></p>
+                        <p>Here is the direct link to your published article: <a href="${process.env.NEWS_DOMAIN}/${slug}"><b>Your Headline Story</b></a></p>
 
                         <p><b>PRINT IT! POST IT! SHARE IT!</b></p>
 
+                        <p>Here is a link to download and print your article: <a href="${process.env.JOURNOVA_DOMAIN}/my-article/${slug}">My Story</a></p>
+
                         <p>Thank you for sharing your story and for allowing us to craft it into something we’re both proud of!</p>
 
-                        <p>Finally, we’re always looking to improve the experience of our contributors like you!  If you would be willing to share your thoughts, here’s a 3 question survey:  <Survey Hyperlink></p>
+                        <p>Finally, we’re always looking to improve the experience of our contributors like you!  If you would be willing to share your thoughts, please respond to this email directly with any suggestions you may have.</p>
 
                         <p>Thanks again,</p>
                     </div>
