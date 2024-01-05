@@ -189,7 +189,7 @@ class ArticleController {
 
       try {
         const email = await this.articleService.getEmailByArticleId(articleId);
-        await agenda.schedule('in 60 seconds', 'send published email', { email, slug, title });
+        await agenda.schedule('in 1 hour', 'send published email', { email, slug, title });
         res.status(200).send('article successfully sent');
       } catch (e) {
         console.error('error in sendEmail controller', e);
@@ -217,8 +217,8 @@ class ArticleController {
         } else if (plan === 'published') {
           await this.articleService.sendConfirmationEmail2(email, firstName);
 
-          await agenda.schedule('in 30 seconds', 'send editorial email 2', { email, firstName, title });
-          await agenda.schedule('in 60 seconds', 'send review email 2', { email, firstName, title, slug });
+          await agenda.schedule('in 2 hours', 'send editorial email 2', { email, firstName, title });
+          await agenda.schedule('in 14 hours', 'send review email 2', { email, firstName, title, slug });
 
         } else if (plan === 'premium') {
           await this.articleService.sendConfirmationEmail3(email, firstName);
