@@ -361,6 +361,10 @@ class ArticleController {
       }
     }
 
+    updateSitemap = async (req: Request, res: Response, next: NextFunction) => {
+
+    }
+
     uploadImage = async (req: Request, res: Response, next: NextFunction) => {
       console.log('HERE INSIDE UPLOADIMAGE CONTROLLER');
       try {

@@ -237,19 +237,21 @@ class ArticleService {
   };
 
   sendPublishedEmail = async (email: string, slug: string, title: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data:`🌟 Your Story is Now Published! Discover Your Article on Vista World News 🌟`
+    try {
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "Journova",
+          email: "support@journova.org"
         },
-        Body: {
-          Html: {
-            Data: `
-            <html>
+        to: [
+          {
+            email: email,
+            name: "You"
+          }
+        ],
+        subject: `🌟 Your Story is Now Published! Discover Your Article on Vista World News 🌟`,
+        htmlContent: `
+        <html>
             <head>
                 <style>
                     body {
@@ -307,186 +309,200 @@ class ArticleService {
                 </div>
             </body>
             </html> `
-          }
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_KEY,
+          'content-type': 'application/json'
         }
-      }
-    };
+      });
 
-    try {
-      const response = await ses.sendEmail(params).promise();
+      console.log("Email sent successfully:", response.data);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
+
   }
 
   sendConfirmationEmail = async (email: string, firstName: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data:`Congratulations, ${firstName}! Your Story Received`
-        },
-        Body: {
-          Html: {
-            Data: `
-            <html>
-            <head>
-                <style>
-                    body {
-                        background-color: #ffffff;
-                        color: #333333;
-                        font-family: Arial, sans-serif;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    .email-container {
-                        max-width: 600px;
-                        margin: 20px auto;
-                        padding: 20px;
-                        border: 1px solid #dddddd;
-                        border-radius: 5px;
-                        background-color: #ffffff;
-                    }
-                    .email-header {
-                        text-align: center;
-                        padding-bottom: 20px;
-                    }
-                    .email-content {
-                        line-height: 1.5;
-                        color: #333333;
-                    }
-                    .email-footer {
-                        margin-top: 30px;
-                        text-align: center;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="email-container">
-                    <div class="email-header">
-                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
-                    </div>
-                    <div class="email-content">
-                        <p>Thank you, <b>${firstName}</b>, for the opportunity to write your story!</p>
-
-                        <p>In the next 72 hours, the team at <b>Journova</b> will be reviewing your information, conducting research, and drafting an article for editorial review.</p>
-
-                        <p>Once complete, you will receive your article by email. You are free to download and print it as you wish!</p>
-
-                        <p>Please respond to this email with any questions or comments.</p>
-                    </div>
-                    <div class="email-footer">
-                        <p>Your friends at <b>Journova</b></p>
-                    </div>
-                </div>
-            </body>
-            </html> `
-          }
-        }
-      }
-    };
-
     try {
-      const response = await ses.sendEmail(params).promise();
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "Journova",
+          email: "support@journova.org"
+        },
+        to: [
+          {
+            email: email,
+            name: firstName
+          }
+        ],
+        subject: `Congratulations, ${firstName}! Your Story Received`,
+        htmlContent: `
+        <html>
+        <head>
+            <style>
+                body {
+                    background-color: #ffffff;
+                    color: #333333;
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: 20px auto;
+                    padding: 20px;
+                    border: 1px solid #dddddd;
+                    border-radius: 5px;
+                    background-color: #ffffff;
+                }
+                .email-header {
+                    text-align: center;
+                    padding-bottom: 20px;
+                }
+                .email-content {
+                    line-height: 1.5;
+                    color: #333333;
+                }
+                .email-footer {
+                    margin-top: 30px;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="email-header">
+                    <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                </div>
+                <div class="email-content">
+                    <p>Thank you, <b>${firstName}</b>, for the opportunity to write your story!</p>
+
+                    <p>In the next 72 hours, the team at <b>Journova</b> will be reviewing your information, conducting research, and drafting an article for editorial review.</p>
+
+                    <p>Once complete, you will receive your article by email. You are free to download and print it as you wish!</p>
+
+                    <p>Please respond to this email with any questions or comments.</p>
+                </div>
+                <div class="email-footer">
+                    <p>Your friends at <b>Journova</b></p>
+                </div>
+            </div>
+        </body>
+        </html>`
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_KEY,
+          'content-type': 'application/json'
+        }
+      });
+
+      console.log("Email sent successfully:", response.data);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
   }
 
   sendConfirmationEmail2 = async (email: string, firstName: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data:`Congratulations, ${firstName}! Your Story Received`
-        },
-        Body: {
-          Html: {
-            Data: `
-            <html>
-            <head>
-                <style>
-                    body {
-                        background-color: #ffffff;
-                        color: #333333;
-                        font-family: Arial, sans-serif;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    .email-container {
-                        max-width: 600px;
-                        margin: 20px auto;
-                        padding: 20px;
-                        border: 1px solid #dddddd;
-                        border-radius: 5px;
-                        background-color: #ffffff;
-                    }
-                    .email-header {
-                        text-align: center;
-                        padding-bottom: 20px;
-                    }
-                    .email-content {
-                        line-height: 1.5;
-                        color: #333333;
-                    }
-                    .email-footer {
-                        margin-top: 30px;
-                        text-align: center;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="email-container">
-                    <div class="email-header">
-                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
-                    </div>
-                    <div class="email-content">
-                        <p>Thank you, <b>${firstName}</b>, for the opportunity to write your story!</p>
-
-                        <p>In the next 48 hours, the team at <b>Journova</b> will be reviewing your information, conducting research, and drafting an article for editorial review.</p>
-
-                        <p>Please look for a draft of that article in your email. Once received, we request that you review the article, agree to the terms and conditions and approve the article for publication.</p>
-
-                        <p>Please respond to this email with any questions or comments.</p>
-                    </div>
-                    <div class="email-footer">
-                        <p>Your friends at <b>Journova</b></p>
-                    </div>
-                </div>
-            </body>
-            </html> `
-          }
-        }
-      }
-    };
-
     try {
-      const response = await ses.sendEmail(params).promise();
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "Journova",
+          email: "support@journova.org"
+        },
+        to: [
+          {
+            email: email,
+            name: firstName
+          }
+        ],
+        subject: `Congratulations, ${firstName}! Your Story Received`,
+        htmlContent: `
+        <html>
+        <head>
+            <style>
+                body {
+                    background-color: #ffffff;
+                    color: #333333;
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: 20px auto;
+                    padding: 20px;
+                    border: 1px solid #dddddd;
+                    border-radius: 5px;
+                    background-color: #ffffff;
+                }
+                .email-header {
+                    text-align: center;
+                    padding-bottom: 20px;
+                }
+                .email-content {
+                    line-height: 1.5;
+                    color: #333333;
+                }
+                .email-footer {
+                    margin-top: 30px;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="email-header">
+                    <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                </div>
+                <div class="email-content">
+                    <p>Thank you, <b>${firstName}</b>, for the opportunity to write your story!</p>
+
+                    <p>In the next 48 hours, the team at <b>Journova</b> will be reviewing your information, conducting research, and drafting an article for editorial review.</p>
+
+                    <p>Please look for a draft of that article in your email. Once received, we request that you review the article, agree to the terms and conditions and approve the article for publication.</p>
+
+                    <p>Please respond to this email with any questions or comments.</p>
+                </div>
+                <div class="email-footer">
+                    <p>Your friends at <b>Journova</b></p>
+                </div>
+            </div>
+        </body>
+        </html> `
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_KEY,
+          'content-type': 'application/json'
+        }
+      });
+
+      console.log("Email sent successfully:", response.data);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
+
   }
 
   sendConfirmationEmail3 = async (email: string, firstName: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data:`Congratulations, ${firstName}! Your Story Received`
+    try {
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "Journova",
+          email: "support@journova.org"
         },
-        Body: {
-          Html: {
-            Data: `
-            <html>
+        to: [
+          {
+            email: email,
+            name: firstName
+          }
+        ],
+        subject: `Congratulations, ${firstName}! Your Story Received`,
+        htmlContent: `
+        <html>
             <head>
                 <style>
                     body {
@@ -538,170 +554,184 @@ class ArticleService {
                 </div>
             </body>
             </html> `
-          }
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_KEY,
+          'content-type': 'application/json'
         }
-      }
-    };
+      });
 
-    try {
-      const response = await ses.sendEmail(params).promise();
+      console.log("Email sent successfully:", response.data);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
+
   }
 
   sendEditorialEmail = async (email: string, firstName: string, title: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data:`Status Update – Your Story Has Been Written!`
-        },
-        Body: {
-          Html: {
-            Data: `
-            <html>
-            <head>
-                <style>
-                    body {
-                        background-color: #ffffff;
-                        color: #333333;
-                        font-family: Arial, sans-serif;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    .email-container {
-                        max-width: 600px;
-                        margin: 20px auto;
-                        padding: 20px;
-                        border: 1px solid #dddddd;
-                        border-radius: 5px;
-                        background-color: #ffffff;
-                    }
-                    .email-header {
-                        text-align: center;
-                        padding-bottom: 20px;
-                    }
-                    .email-content {
-                        line-height: 1.5;
-                        color: #333333;
-                    }
-                    .email-footer {
-                        margin-top: 30px;
-                        text-align: center;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="email-container">
-                    <div class="email-header">
-                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
-                    </div>
-                    <div class="email-content">
-                        <p>The article titled <b>“${title}”</b> has been written.</p>
-
-                        <p>Are you excited, ${firstName}?</p>
-
-                        <p>Once our editorial team reviews and polishes your article, we’ll complete the order and send it to you.</p>
-
-                        <p>Please respond to this email with any questions or comments.</p>
-                    </div>
-                    <div class="email-footer">
-                        <p>Your friends at <b>Journova</b></p>
-                    </div>
-                </div>
-            </body>
-            </html> `
-          }
-        }
-      }
-    };
 
     try {
-      const response = await ses.sendEmail(params).promise();
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "Journova",
+          email: "support@journova.org"
+        },
+        to: [
+          {
+            email: email,
+            name: firstName
+          }
+        ],
+        subject: `Status Update – Your Story Has Been Written!`,
+        htmlContent: `
+        <html>
+        <head>
+            <style>
+                body {
+                    background-color: #ffffff;
+                    color: #333333;
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: 20px auto;
+                    padding: 20px;
+                    border: 1px solid #dddddd;
+                    border-radius: 5px;
+                    background-color: #ffffff;
+                }
+                .email-header {
+                    text-align: center;
+                    padding-bottom: 20px;
+                }
+                .email-content {
+                    line-height: 1.5;
+                    color: #333333;
+                }
+                .email-footer {
+                    margin-top: 30px;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="email-header">
+                    <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                </div>
+                <div class="email-content">
+                    <p>The article titled <b>“${title}”</b> has been written.</p>
+
+                    <p>Are you excited, ${firstName}?</p>
+
+                    <p>Once our editorial team reviews and polishes your article, we’ll complete the order and send it to you.</p>
+
+                    <p>Please respond to this email with any questions or comments.</p>
+                </div>
+                <div class="email-footer">
+                    <p>Your friends at <b>Journova</b></p>
+                </div>
+            </div>
+        </body>
+        </html> `
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_KEY,
+          'content-type': 'application/json'
+        }
+      });
+
+      console.log("Email sent successfully:", response.data);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
   }
 
   sendEditorialEmail2 = async (email: string, firstName: string, title: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data:`Status Update – Your Story Has Been Written!`
-        },
-        Body: {
-          Html: {
-            Data: `
-            <html>
-            <head>
-                <style>
-                    body {
-                        background-color: #ffffff;
-                        color: #333333;
-                        font-family: Arial, sans-serif;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    .email-container {
-                        max-width: 600px;
-                        margin: 20px auto;
-                        padding: 20px;
-                        border: 1px solid #dddddd;
-                        border-radius: 5px;
-                        background-color: #ffffff;
-                    }
-                    .email-header {
-                        text-align: center;
-                        padding-bottom: 20px;
-                    }
-                    .email-content {
-                        line-height: 1.5;
-                        color: #333333;
-                    }
-                    .email-footer {
-                        margin-top: 30px;
-                        text-align: center;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="email-container">
-                    <div class="email-header">
-                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
-                    </div>
-                    <div class="email-content">
-                        <p>The article titled <b>“${title}”</b> has been written.</p>
-
-                        <p>Are you excited, ${firstName}?</p>
-
-                        <p>Once our editorial team reviews and polishes your article, we’ll complete the order and send it to you for review, acceptance of terms and conditions and publication.  </p>
-
-                        <p>Please respond to this email with any questions or comments.</p>
-                    </div>
-                    <div class="email-footer">
-                        <p>Your friends at <b>Journova</b></p>
-                    </div>
-                </div>
-            </body>
-            </html> `
-          }
-        }
-      }
-    };
 
     try {
-      const response = await ses.sendEmail(params).promise();
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "Journova",
+          email: "support@journova.org"
+        },
+        to: [
+          {
+            email: email,
+            name: firstName
+          }
+        ],
+        subject: `Status Update – Your Story Has Been Written!`,
+        htmlContent: `
+        <html>
+        <head>
+            <style>
+                body {
+                    background-color: #ffffff;
+                    color: #333333;
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: 20px auto;
+                    padding: 20px;
+                    border: 1px solid #dddddd;
+                    border-radius: 5px;
+                    background-color: #ffffff;
+                }
+                .email-header {
+                    text-align: center;
+                    padding-bottom: 20px;
+                }
+                .email-content {
+                    line-height: 1.5;
+                    color: #333333;
+                }
+                .email-footer {
+                    margin-top: 30px;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="email-header">
+                    <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                </div>
+                <div class="email-content">
+                    <p>The article titled <b>“${title}”</b> has been written.</p>
+
+                    <p>Are you excited, ${firstName}?</p>
+
+                    <p>Once our editorial team reviews and polishes your article, we’ll complete the order and send it to you for review, acceptance of terms and conditions and publication.  </p>
+
+                    <p>Please respond to this email with any questions or comments.</p>
+                </div>
+                <div class="email-footer">
+                    <p>Your friends at <b>Journova</b></p>
+                </div>
+            </div>
+        </body>
+        </html> `
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_KEY,
+          'content-type': 'application/json'
+        }
+      });
+
+      console.log("Email sent successfully:", response.data);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
+
   }
 
 
@@ -709,100 +739,108 @@ class ArticleService {
 
 
   sendReviewEmail = async (email: string, firstName: string, title: string, slug: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data:`Your Story Has Been Delivered!`
-        },
-        Body: {
-          Html: {
-            Data: `
-            <html>
-            <head>
-                <style>
-                    body {
-                        background-color: #ffffff;
-                        color: #333333;
-                        font-family: Arial, sans-serif;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    .email-container {
-                        max-width: 600px;
-                        margin: 20px auto;
-                        padding: 20px;
-                        border: 1px solid #dddddd;
-                        border-radius: 5px;
-                        background-color: #ffffff;
-                    }
-                    .email-header {
-                        text-align: center;
-                        padding-bottom: 20px;
-                    }
-                    .email-content {
-                        line-height: 1.5;
-                        color: #333333;
-                    }
-                    .email-footer {
-                        margin-top: 30px;
-                        text-align: center;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="email-container">
-                    <div class="email-header">
-                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
-                    </div>
-                    <div class="email-content">
-                        <p>The article titled <b>“${title}”</b> is attached below!</p>
-
-                        <p><b>PRINT IT! FRAME IT!</b></p>
-
-                        <p><a href="${process.env.JOURNOVA_DOMAIN}/my-article/${slug}">My Story</a></p>
-
-                        <p>Thank you for sharing your story and for allowing us to craft it into something we’re both proud of!</p>
-
-                        <p>Finally, we’re always looking to improve the experience of our contributors like you ${firstName}!  If you would be willing to share your thoughts, here’s a 3 question survey:  <Survey Hyperlink></p>
-
-                        <p>Thanks again,</p>
-                    </div>
-                    <div class="email-footer">
-                        <p>Your friends at <b>Journova</b></p>
-                    </div>
-                </div>
-            </body>
-            </html> `
-          }
-        }
-      }
-    };
 
     try {
-      const response = await ses.sendEmail(params).promise();
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "Journova",
+          email: "support@journova.org"
+        },
+        to: [
+          {
+            email: email,
+            name: firstName
+          }
+        ],
+        subject: `Your Story Has Been Delivered!`,
+        htmlContent: `
+        <html>
+        <head>
+            <style>
+                body {
+                    background-color: #ffffff;
+                    color: #333333;
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: 20px auto;
+                    padding: 20px;
+                    border: 1px solid #dddddd;
+                    border-radius: 5px;
+                    background-color: #ffffff;
+                }
+                .email-header {
+                    text-align: center;
+                    padding-bottom: 20px;
+                }
+                .email-content {
+                    line-height: 1.5;
+                    color: #333333;
+                }
+                .email-footer {
+                    margin-top: 30px;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="email-header">
+                    <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                </div>
+                <div class="email-content">
+                    <p>The article titled <b>“${title}”</b> is attached below!</p>
+
+                    <p><b>PRINT IT! FRAME IT!</b></p>
+
+                    <p><a href="${process.env.JOURNOVA_DOMAIN}/my-article/${slug}">My Story</a></p>
+
+                    <p>Thank you for sharing your story and for allowing us to craft it into something we’re both proud of!</p>
+
+                    <p>Finally, we’re always looking to improve the experience of our contributors like you ${firstName}!  If you would be willing to share your thoughts, here’s a 3 question survey:  <Survey Hyperlink></p>
+
+                    <p>Thanks again,</p>
+                </div>
+                <div class="email-footer">
+                    <p>Your friends at <b>Journova</b></p>
+                </div>
+            </div>
+        </body>
+        </html> `
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_KEY,
+          'content-type': 'application/json'
+        }
+      });
+
+      console.log("Email sent successfully:", response.data);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
   }
 
   sendReviewEmail2 = async (email: string, firstName: string, title: string, slug: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data:` Status Update – Your Story Has Been Approved!`
+
+    try {
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "Journova",
+          email: "support@journova.org"
         },
-        Body: {
-          Html: {
-            Data: `
-            <html>
+        to: [
+          {
+            email: email,
+            name: firstName
+          }
+        ],
+        subject: `Status Update – Your Story Has Been Approved!`,
+        htmlContent: `
+        <html>
             <head>
                 <style>
                     body {
@@ -853,33 +891,37 @@ class ArticleService {
                     </div>
                 </div>
             </body>
-            </html> `
-          }
+            </html>`
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_KEY,
+          'content-type': 'application/json'
         }
-      }
-    };
+      });
 
-    try {
-      const response = await ses.sendEmail(params).promise();
+      console.log("Email sent successfully:", response.data);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
   }
 
   sendReviewEmail3 = async (email: string, firstName: string, title: string, slug: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data:` Status Update – Your Story Has Been Approved!`
+    try {
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "Journova",
+          email: "support@journova.org"
         },
-        Body: {
-          Html: {
-            Data: `
-            <html>
+        to: [
+          {
+            email: email,
+            name: firstName
+          }
+        ],
+        subject: `Status Update – Your Story Has Been Approved!`,
+        htmlContent: `
+        <html>
             <head>
                 <style>
                     body {
@@ -931,16 +973,19 @@ class ArticleService {
                 </div>
             </body>
             </html> `
-          }
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_KEY,
+          'content-type': 'application/json'
         }
-      }
-    };
+      });
 
-    try {
-      const response = await ses.sendEmail(params).promise();
+      console.log("Email sent successfully:", response.data);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
+
   }
 
 
@@ -984,19 +1029,22 @@ class ArticleService {
   };
 
   sendRevisionEmail = async (email: string, slug: string) => {
-    const params = {
-      Source: 'support@journova.org', // verified SES sender email
-      Destination: {
-        ToAddresses: [email] // The recipient's email address
-      },
-      Message: {
-        Subject: {
-          Data:`Your Revised Article is Ready for Review - Take a Look!`
+
+    try {
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "Journova",
+          email: "support@journova.org"
         },
-        Body: {
-          Html: {
-            Data: `
-            <html>
+        to: [
+          {
+            email: email,
+            name: "You"
+          }
+        ],
+        subject: `Your Revised Article is Ready for Review - Take a Look!`,
+        htmlContent: `
+        <html>
             <head>
                 <style>
                     body {
@@ -1048,16 +1096,19 @@ class ArticleService {
                 </div>
             </body>
             </html> `
-          }
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_KEY,
+          'content-type': 'application/json'
         }
-      }
-    };
+      });
 
-    try {
-      const response = await ses.sendEmail(params).promise();
+      console.log("Email sent successfully:", response.data);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
+
   }
 
   getSavedRevisedArticle = async (articleId: any) => {

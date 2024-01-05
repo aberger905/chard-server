@@ -10,6 +10,7 @@ import revisionRouter from './routes/revisionRouter';
 import * as dotenv from 'dotenv';
 import connectDB from './db/db.config';
 import agenda from './agendaConfig';
+import path from 'path';
 dotenv.config();
 connectDB();
 
@@ -30,6 +31,8 @@ app.use(cookieParser());
 
 app.use('/webhook', webhookRouter);
 app.use(express.json()); //must come after webhookRouter because it needs raw data
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/news', newsRouter);
 app.use('/article', articleRouter);
