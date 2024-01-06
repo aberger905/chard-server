@@ -1172,6 +1172,7 @@ class ArticleService {
     }
   };
 
+
   publish = async (articleId: number) => {
      const queryString = 'UPDATE articles SET published = $1, date_published = CURRENT_DATE WHERE article_id = $2'
      const values = [true, articleId];
@@ -1216,6 +1217,8 @@ class ArticleService {
       console.error('Error uploading file', e);
     }
   }
+
+
 
 
 }

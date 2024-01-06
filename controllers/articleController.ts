@@ -374,6 +374,7 @@ class ArticleController {
       }
     }
 
+
     uploadImage = async (req: Request, res: Response, next: NextFunction) => {
       console.log('HERE INSIDE UPLOADIMAGE CONTROLLER');
       try {

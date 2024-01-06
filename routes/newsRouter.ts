@@ -17,4 +17,5 @@ router.get('/latest', newsController.getSavedArticles, (req: Request, res: Respo
   res.status(200).json(articles);
 })
 
+
 export default router;

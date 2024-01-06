@@ -10,6 +10,7 @@ import revisionRouter from './routes/revisionRouter';
 import * as dotenv from 'dotenv';
 import connectDB from './db/db.config';
 import agenda from './agendaConfig';
+import axios from 'axios'
 import path from 'path';
 dotenv.config();
 connectDB();
@@ -24,17 +25,23 @@ const limiter = rateLimit({
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.use((req, res, next) => {
-  console.log("Incoming request:", req.method, req.url);
-  next();
-});
-
-app.use(express.static(path.join(__dirname, 'public')));
-
 app.use(cors());
 app.use(helmet());
 app.use(limiter);
 app.use(cookieParser());
+
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const sitemapUrl = 'https://journova.s3.us-east-2.amazonaws.com/sitemap.xml';
+    const response = await axios.get(sitemapUrl);
+
+    res.set('Content-Type', 'application/xml');
+    res.send(response.data);
+} catch (error) {
+    console.error('Error fetching sitemap:', error);
+    res.status(500).send('An error occurred');
+}
+});
 
 app.use('/webhook', webhookRouter);
 app.use(express.json()); //must come after webhookRouter because it needs raw data
