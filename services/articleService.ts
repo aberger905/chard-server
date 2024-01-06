@@ -1128,31 +1128,49 @@ class ArticleService {
   }
 
   updateSitemap = async (slug: string) => {
-    const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
-    const xml = fs.readFileSync(sitemapPath, 'utf8');
 
-    parseString(xml, async (err, result: any) => {
-      if (err) {
-        // handle error
-        console.error(err);
-        return;
-      }
+    const params = {
+      Bucket: 'journova',
+      Key: 'sitemap.xml'
+    };
 
-      const newUrl = {
-        loc: `https://vistaworldnews.com/${slug}`,
-        lastmod: new Date().toISOString().split('T')[0], // format as YYYY-MM-DD
-        changefreq: 'weekly',
-        priority: 0.8
-      };
+    try {
+      // Read the sitemap.xml from S3
+      const data: any = await s3.getObject(params).promise();
+      const xml = data.Body.toString('utf-8');
 
-      result.urlset.url.push(newUrl);
+      parseString(xml, async (err, result) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
 
-      const builder = new Builder();
-      const updatedXml = builder.buildObject(result);
+        const newUrl = {
+          loc: `https://vistaworldnews.com/${slug}`,
+          lastmod: new Date().toISOString().split('T')[0], // format as YYYY-MM-DD
+          changefreq: 'weekly',
+          priority: 0.8
+        };
 
-      fs.writeFileSync(sitemapPath, updatedXml, 'utf8');
-    });
-  }
+        result.urlset.url.push(newUrl);
+
+        const builder = new Builder();
+        const updatedXml = builder.buildObject(result);
+
+        // Write the updated XML back to S3
+        const uploadParams = {
+          Bucket: 'journova',
+          Key: 'sitemap.xml',
+          Body: updatedXml,
+          ContentType: 'application/xml'
+        };
+        await s3.putObject(uploadParams).promise();
+        console.log('Sitemap updated and uploaded to S3');
+      });
+    } catch (err) {
+      console.error('Error updating sitemap:', err);
+    }
+  };
 
   publish = async (articleId: number) => {
      const queryString = 'UPDATE articles SET published = $1, date_published = CURRENT_DATE WHERE article_id = $2'
