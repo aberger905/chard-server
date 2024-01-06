@@ -24,6 +24,13 @@ const limiter = rateLimit({
 const app = express();
 const port = process.env.PORT || 3001;
 
+app.use((req, res, next) => {
+  console.log("Incoming request:", req.method, req.url);
+  next();
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(cors());
 app.use(helmet());
 app.use(limiter);
@@ -32,7 +39,6 @@ app.use(cookieParser());
 app.use('/webhook', webhookRouter);
 app.use(express.json()); //must come after webhookRouter because it needs raw data
 
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/news', newsRouter);
 app.use('/article', articleRouter);

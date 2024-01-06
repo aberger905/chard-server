@@ -2,6 +2,9 @@ import axios from 'axios';
 import db from '../db/rds.config'
 import deslugify from '../utils/deslugify';
 import AWS from '../AWS.config';
+import fs from 'fs';
+import path from 'path';
+import { parseString, Builder } from 'xml2js';
 import * as dotenv from 'dotenv';
 dotenv.config();
 const ses = new AWS.SES();
@@ -1122,6 +1125,33 @@ class ArticleService {
     console.error('error in the getSavedRevisedArticle Service', e)
    }
 
+  }
+
+  updateSitemap = async (slug: string) => {
+    const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
+    const xml = fs.readFileSync(sitemapPath, 'utf8');
+
+    parseString(xml, async (err, result: any) => {
+      if (err) {
+        // handle error
+        console.error(err);
+        return;
+      }
+
+      const newUrl = {
+        loc: `https://vistaworldnews.com/${slug}`,
+        lastmod: new Date().toISOString().split('T')[0], // format as YYYY-MM-DD
+        changefreq: 'weekly',
+        priority: 0.8
+      };
+
+      result.urlset.url.push(newUrl);
+
+      const builder = new Builder();
+      const updatedXml = builder.buildObject(result);
+
+      fs.writeFileSync(sitemapPath, updatedXml, 'utf8');
+    });
   }
 
   publish = async (articleId: number) => {

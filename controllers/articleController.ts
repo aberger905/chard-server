@@ -362,7 +362,16 @@ class ArticleController {
     }
 
     updateSitemap = async (req: Request, res: Response, next: NextFunction) => {
+      const { title, articleId } = req.body;
+      const slug = slugify(title, articleId);
 
+      try {
+        await this.articleService.updateSitemap(slug);
+        next();
+      } catch (e) {
+        console.error('error inside update sitemap', e);
+        next(e)
+      }
     }
 
     uploadImage = async (req: Request, res: Response, next: NextFunction) => {
