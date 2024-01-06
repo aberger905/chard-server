@@ -36,7 +36,7 @@ app.get('/sitemap.xml', async (req, res) => {
     const response = await axios.get(sitemapUrl);
 
     res.set('Content-Type', 'application/xml');
-    res.send(response.data);
+    res.status(200).send(response.data);
 } catch (error) {
     console.error('Error fetching sitemap:', error);
     res.status(500).send('An error occurred');
