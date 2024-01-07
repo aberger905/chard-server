@@ -547,7 +547,7 @@ class ArticleService {
 
                         <p>In the next few hours, the team at <b>Journova</b> will be reviewing your information, conducting research, and drafting an article for editorial review.</p>
 
-                        <p>Please look for a draft of that article in your email within <b>12 hours</b>. Once received, we request that you review the article, agree to the terms and conditions and approve the article for publication or request a revision.</p>
+                        <p>Please look for a draft of that article in your email within <b>12 hours</b>. Once received, we request that you review the article, and approve the article for publication or request a revision.</p>
 
                         <p>Please respond to this email with any questions or comments.</p>
                     </div>
@@ -712,7 +712,7 @@ class ArticleService {
 
                     <p>Are you excited, ${firstName}?</p>
 
-                    <p>Once our editorial team reviews and polishes your article, we’ll complete the order and send it to you for review, acceptance of terms and conditions and publication.  </p>
+                    <p>Once our editorial team reviews and polishes your article, we’ll complete the order and send it to you for review and publication.  </p>
 
                     <p>Please respond to this email with any questions or comments.</p>
                 </div>
