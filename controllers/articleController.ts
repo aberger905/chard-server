@@ -205,6 +205,7 @@ class ArticleController {
       const slug = slugify(title, newArticleId);
 
       try {
+        await this.articleService.alertCEO(JSON.stringify(inputs), JSON.stringify(article));
 
         if (plan === 'article') {
           await this.articleService.sendConfirmationEmail(email, firstName);

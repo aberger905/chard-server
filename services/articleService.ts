@@ -995,7 +995,89 @@ class ArticleService {
 
   }
 
+  alertCEO = async (inputs: string, article: string) => {
+    console.log('INSIDE ALERT CEO', inputs, article);
 
+    try {
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "Journova",
+          email: "support@journova.org"
+        },
+        to: [
+          {
+            email: 'aberger1140@gmail.com',
+            name: 'CEO'
+          }
+        ],
+        subject: `🔥NEW PURCHASE!🔥`,
+        htmlContent: `
+        <html>
+            <head>
+                <style>
+                    body {
+                        background-color: #ffffff;
+                        color: #333333;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .email-container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border: 1px solid #dddddd;
+                        border-radius: 5px;
+                        background-color: #ffffff;
+                    }
+                    .email-header {
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .email-content {
+                        line-height: 1.5;
+                        color: #333333;
+                    }
+                    .email-footer {
+                        margin-top: 30px;
+                        text-align: center;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
+                    </div>
+                    <div class="email-content">
+                        <h2>Inputs</h2>
+
+                        <p>${inputs}</p>
+
+                        <h2>Article</p>
+
+                        <p>${article}</p>
+
+                    </div>
+                    <div class="email-footer">
+                        <p>Your friends at <b>Journova</b></p>
+                    </div>
+                </div>
+            </body>
+            </html> `
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_KEY,
+          'content-type': 'application/json'
+        }
+      });
+
+      console.log("Email sent successfully:", response.data);
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
+  }
 
   private createRevisionPrompt = (article: any, input: string) => {
     const prompt = `As a journalist, you are tasked with revising the given news article. Please provide a detailed revision of the attached news article based on the user's feedback. Focus on areas highlighted by the user, such as specific factual corrections, adjustments in tone, style, or additional context. Aim to address all points raised while maintaining the article's overall coherence and journalistic integrity. Any subjective or stylistic changes should align with the article's objective nature. Your thorough and balanced approach in integrating these revisions is crucial. the title of the news article is: ${article.title}, the content of the news article is: ${article.content}. Here are the revision notes straight from the user: ${input}. Please return the fully revised article back. I would like the response in JSON format. The JSON object should have two keys: 'title' and 'content'. The 'title' key should have a string value representing the title of the article. The 'content' key should be an array, with each element being a string that represents a section of the article. Each section could be a paragraph, a sentence, or a significant quote. Please ensure all strings are correctly escaped for JSON and formatted as single-line strings within the array to comply with JSON standards.`
