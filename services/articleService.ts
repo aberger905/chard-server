@@ -970,7 +970,7 @@ class ArticleService {
 
                         <p>To review and approve for publication click here: <a href="${process.env.JOURNOVA_DOMAIN}/preview/${slug}"><b>My Story</b></a></p>
 
-                        <p>Once approved, the article will be scheduled for publication within the next 24 hours and you’ll receive a confirmation with a link to the news source.</p>
+                        <p>Once approved, the article will be scheduled for publication within the next few hours and you’ll receive a confirmation with a link to the news source.</p>
 
                         <p>Please respond to this email with any questions or comments.</p>
                     </div>
