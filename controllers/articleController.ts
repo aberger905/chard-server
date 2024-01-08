@@ -271,7 +271,7 @@ class ArticleController {
 
       try {
         const email = await this.articleService.getEmailByArticleId(articleId);
-        await agenda.schedule('in 8 hours', 'send revision email', { email, slug });
+        await agenda.schedule('in 2 hours', 'send revision email', { email, slug });
         next();
       } catch (e) {
         console.error('error in sendRevisionEmail controller', e)
