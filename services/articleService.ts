@@ -115,8 +115,12 @@ class ArticleService {
   const { title, content } = article;
   const stringifiedContent = JSON.stringify(content);
 
-  const queryString = 'INSERT INTO articles (submission_id, title, content, plan, image) VALUES ($1, $2, $3, $4, $5) RETURNING article_id'
-  const values = [submissionId, title, stringifiedContent, plan, imageUrl];
+  const authors = ["Jonathan Parker", "Eliza Maddox", "Oliver Hale", "Ava Chen"];
+  const randomIndex = Math.floor(Math.random() * authors.length);
+  const selectedAuthor = authors[randomIndex];
+
+  const queryString = 'INSERT INTO articles (submission_id, title, content, plan, image, author) VALUES ($1, $2, $3, $4, $5, $6) RETURNING article_id'
+  const values = [submissionId, title, stringifiedContent, plan, imageUrl, selectedAuthor];
 
   try {
     const response = await db.query(queryString, values);
