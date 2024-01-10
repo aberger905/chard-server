@@ -1276,7 +1276,7 @@ class ArticleService {
 
     const revisedArticle = article.revised;
 
-    const queryString = 'UPDATE articles SET title = $1, content = $2, published = $3 WHERE article_id = $4';
+    const queryString = 'UPDATE articles SET title = $1, content = $2, published = $3, date_published = CURRENT_DATE WHERE article_id = $4';
     const values = [revisedArticle.title, JSON.stringify(revisedArticle.content), true, articleId];
 
     try {
