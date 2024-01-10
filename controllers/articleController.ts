@@ -225,7 +225,7 @@ class ArticleController {
           await agenda.schedule('in 8 hours', 'send editorial email 2', { email, firstName, title });
           await agenda.schedule('in 16 hours', 'send review email 3', { email, firstName, title, slug });
         }
-        next();
+        res.status(200).send('success')
       } catch (e) {
         console.error('Error scheduling emails with Agenda:', e);
         next(e);
