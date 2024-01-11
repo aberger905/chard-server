@@ -16,7 +16,7 @@ class ArticleController {
 
   constructor () {
     this.articleService = new ArticleService();
-    this.stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+    this.stripe = new Stripe(process.env.STRIPE_KEY as string);
 
   }
 
