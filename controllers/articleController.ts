@@ -103,6 +103,7 @@ class ArticleController {
               quantity: 1,
             },
           ],
+          allow_promotion_codes: true,
           mode: 'payment',
           success_url: `${process.env.JOURNOVA_DOMAIN}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${process.env.JOURNOVA_DOMAIN}/payment`,
