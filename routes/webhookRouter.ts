@@ -12,6 +12,7 @@ const router: Router = express.Router();
 router.post('/confirm', express.raw({type: 'application/json'}), webhookController.handleStripeEvent);
 
 router.get('/initiate', (req: Request, res: Response, next: NextFunction) => {
+  console.log('INSIDE INITIATE');
   res.locals.submissionId = req.query.submissionId;
   res.locals.plan = req.query.plan;
   next();

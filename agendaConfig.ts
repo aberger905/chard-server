@@ -63,6 +63,7 @@ agenda.define('update news', async () => {
 
 agenda.define('initiate article process', async (job: any, done) => {
   const { submissionId, plan } = job.attrs.data;
+  console.log('INSIDE THE DEFINE INITIAT ARTICLE PROCESS');
   try {
     const response = await axios.get(`${process.env.SERVER_DOMAIN}/webhook/initiate`, {
       params: { submissionId, plan }
@@ -71,6 +72,7 @@ agenda.define('initiate article process', async (job: any, done) => {
   } catch (error) {
     console.error('Error in internal API call:', error);
   }
+  done();
 });
 
 

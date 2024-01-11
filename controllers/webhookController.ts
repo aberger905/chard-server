@@ -25,7 +25,7 @@ class WebhookController {
 
             res.locals.submissionId = submissionId;
             res.locals.plan = plan;
-            await agenda.schedule('in 1 second', 'initiate article process', { submissionId, plan})
+            await agenda.schedule('in 3 seconds', 'initiate article process', { submissionId, plan})
             return res.status(200).send('success');
         } else {
             console.log('Unexpected event type:', event.type);
