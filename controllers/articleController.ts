@@ -33,28 +33,7 @@ class ArticleController {
         res.status(500).send('Server error');
       }
     }
-    // saveSubmission = async (req: Request, res: Response, next: NextFunction) => {
-    //   const input = req.body;
-    //   const imageFile = req.file; // The uploaded image file
 
-    //   if (imageFile === undefined) {
-    //     return 'error image File undefined'
-    //   }
-
-    //   try {
-    //     // Upload imageFile to S3 and get the URL
-    //     const imageUrl = await this.articleService.uploadImageToS3(imageFile);
-    //     input.imageUrl = imageUrl;
-    //     // Save submission with image URL
-    //     const submissionId = await this.articleService.saveSubmission(input);
-
-    //     res.locals.submissionId = submissionId;
-    //     return next();
-    //   } catch (e) {
-    //     console.error('error saving submission', e);
-    //     res.status(500).send('Server error');
-    //   }
-    // };
 
     checkSubmission = async (req: Request, res: Response, next: NextFunction) => {
       const { submissionId } = res.locals;
@@ -105,14 +84,14 @@ class ArticleController {
       try {
         const { submissionId, plan } = req.body;
 
-        let product: string;
+        let product: any;
 
         if (plan === 'article') {
-          product = 'price_1OQbB2LGU8dofAUrf2AiXjvL';
+          product = process.env.ARTICLE_PRODUCT_ID;
         } else if (plan === 'published') {
-          product = 'price_1OQbBbLGU8dofAUrjWqU6LqW';
+          product = process.env.PUBLISHED_PRODUCT_ID;
         } else if (plan === 'premium') {
-          product = 'price_1OQbDJLGU8dofAUrQEDnLMRE';
+          product = process.env.PREMIUM_PRODUCT_ID;
         } else {
           return 'no product found';
         }
