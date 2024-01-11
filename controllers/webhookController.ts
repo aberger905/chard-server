@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction} from 'express';
 import Stripe from 'stripe';
+import agenda from '../agendaConfig';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -24,8 +25,8 @@ class WebhookController {
 
             res.locals.submissionId = submissionId;
             res.locals.plan = plan;
-
-            return next();
+            await agenda.schedule('in 1 second', 'initiate article process', { submissionId, plan})
+            return res.status(200).send('success');
         } else {
             console.log('Unexpected event type:', event.type);
             res.status(400).send('Unexpected event type');

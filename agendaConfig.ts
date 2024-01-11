@@ -61,6 +61,18 @@ agenda.define('update news', async () => {
   }
 });
 
+agenda.define('initiate article process', async (job: any, done) => {
+  const { submissionId, plan } = job.attrs.data;
+  try {
+    const response = await axios.get(`${process.env.SERVER_DOMAIN}/webhook/initiate`, {
+      params: { submissionId, plan }
+    });
+    console.log('Internal API call response:', response.data);
+  } catch (error) {
+    console.error('Error in internal API call:', error);
+  }
+});
+
 
 
 export default agenda
