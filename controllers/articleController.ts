@@ -169,7 +169,7 @@ class ArticleController {
 
       try {
         const email = await this.articleService.getEmailByArticleId(articleId);
-        await agenda.schedule('in 1 hour', 'send published email', { email, slug, title });
+        await agenda.schedule('in 50 minutes', 'send published email', { email, slug, title });
         res.status(200).send('article successfully sent');
       } catch (e) {
         console.error('error in sendEmail controller', e);
@@ -190,14 +190,14 @@ class ArticleController {
         if (plan === 'article') {
           await this.articleService.sendConfirmationEmail(email, firstName);
 
-          await agenda.schedule('in 30 minutes', 'send editorial email', { email, firstName, title });
-          await agenda.schedule('in 1 hour', 'send review email', { email, firstName, title, slug });
+          await agenda.schedule('in 22 hours', 'send editorial email', { email, firstName, title });
+          await agenda.schedule('in 1 day and 16 hours', 'send review email', { email, firstName, title, slug });
 
         } else if (plan === 'published') {
           await this.articleService.sendConfirmationEmail2(email, firstName);
 
-          await agenda.schedule('in 8 hours', 'send editorial email 2', { email, firstName, title });
-          await agenda.schedule('in 16 hours', 'send review email 2', { email, firstName, title, slug });
+          await agenda.schedule('in 22 hours', 'send editorial email 2', { email, firstName, title });
+          await agenda.schedule('in 1 day and 16 hours', 'send review email 2', { email, firstName, title, slug });
 
         } else if (plan === 'premium') {
           await this.articleService.sendConfirmationEmail3(email, firstName);
@@ -252,7 +252,7 @@ class ArticleController {
 
       try {
         const email = await this.articleService.getEmailByArticleId(articleId);
-        await agenda.schedule('in 2 hours', 'send revision email', { email, slug });
+        await agenda.schedule('in 6 hours', 'send revision email', { email, slug });
         next();
       } catch (e) {
         console.error('error in sendRevisionEmail controller', e)
