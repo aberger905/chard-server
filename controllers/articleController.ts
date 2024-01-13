@@ -203,7 +203,7 @@ class ArticleController {
           await this.articleService.sendConfirmationEmail3(email, firstName);
 
           await agenda.schedule('in 8 hours', 'send editorial email 2', { email, firstName, title });
-          await agenda.schedule('in 16 hours', 'send review email 3', { email, firstName, title, slug });
+          await agenda.schedule('in 18 hours', 'send review email 3', { email, firstName, title, slug });
         }
         res.status(200).send('success')
       } catch (e) {
@@ -234,12 +234,13 @@ class ArticleController {
     saveRevisedArticle = async (req: Request, res: Response, next: NextFunction) => {
       const { revisedArticle } = res.locals;
       const { slug } = req.params;
+      const { input } = req.body;
       const articleId = deslugify(slug);
       res.locals.articleId = articleId;
       const article = revisedArticle[0].message.content;
 
       try {
-        await this.articleService.saveRevisedArticle(article, articleId);
+        await this.articleService.saveRevisedArticle(article, articleId, input);
         next();
       } catch (e) {
         console.error('error in saveRevisedArticle service', e);

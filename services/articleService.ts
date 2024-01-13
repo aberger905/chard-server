@@ -1107,9 +1107,9 @@ class ArticleService {
       }
   }
 
-  saveRevisedArticle = async (article: any, articleId: any) => {
-    const queryString = 'UPDATE articles SET revised = $1 WHERE article_id = $2';
-    const values = [article, articleId];
+  saveRevisedArticle = async (article: any, articleId: any, input: string) => {
+    const queryString = 'UPDATE articles SET revised = $1, revision_notes = $2 WHERE article_id = $3';
+    const values = [article, input, articleId];
     try {
       await db.query(queryString, values);
     } catch (e) {

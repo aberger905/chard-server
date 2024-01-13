@@ -29,10 +29,6 @@ router.post('/publish', articleController.publish, articleController.updateSitem
   res.status(200).json('success');
 })
 
-// router.post('/image', upload.single('headerImage'), (req, res) => {
-//   console.log(req.file);
-//   res.send('ok');
-// });
 router.post('/image', upload.single('headerImage'), articleController.uploadImage);
 
 router.get('/:slug', articleController.getSavedArticle, (req: Request, res: Response) => {
