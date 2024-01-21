@@ -193,7 +193,7 @@ class ArticleService {
       },
       Message: {
         Subject: {
-          Data: '🌟 Your Story is Now Published! Discover Your Article on Vista World News 🌟'
+          Data: '🌟 The Story is Now Published! Discover Your Article on Vista World News 🌟'
         },
         Body: {
           Html: {
@@ -210,7 +210,7 @@ class ArticleService {
               </style>
             </head>
             <body>
-              <h1>We are thrilled to share that your article, “[Article Title]”, is now published!</h1>
+              <h1>We are thrilled to share that the article, “[Article Title]”, is now published!</h1>
               <p>This marks a significant milestone in your journey with us, and we couldn't be more excited to see the impact your story will have.</p>
 
               <h2>Experience Your Published Work</h2>
@@ -259,7 +259,7 @@ class ArticleService {
             name: "You"
           }
         ],
-        subject: `🌟 Your Story is Now Published! Discover Your Article on Vista World News 🌟`,
+        subject: `🌟 The Story is Now Published! Discover Your Article on Vista World News 🌟`,
         htmlContent: `
         <html>
             <head>
@@ -301,13 +301,13 @@ class ArticleService {
                     <div class="email-content">
                         <p>The article titled “${title}” has been published!</p>
 
-                        <p>Here is the direct link to your published article: <a href="${process.env.NEWS_DOMAIN}/${slug}"><b>Your Headline Story</b></a></p>
+                        <p>Here is the direct link to your published article: <a href="${process.env.NEWS_DOMAIN}/${slug}"><b>The Headline Story</b></a></p>
 
                         <p><b>PRINT IT! POST IT! SHARE IT!</b></p>
 
-                        <p>Here is a link to download and print your article: <a href="${process.env.JOURNOVA_DOMAIN}/my-article/${slug}">My Story</a></p>
+                        <p>Here is a link to download and print the article: <a href="${process.env.JOURNOVA_DOMAIN}/my-article/${slug}">The Article</a></p>
 
-                        <p>Thank you for sharing your story and for allowing us to craft it into something we’re both proud of!</p>
+                        <p>Thank you for sharing this story and for allowing us to craft it into something we’re both proud of!</p>
 
                         <p>Finally, we’re always looking to improve the experience of our contributors like you!  If you would be willing to share your thoughts, please respond to this email directly with any suggestions you may have.</p>
 
@@ -344,10 +344,10 @@ class ArticleService {
         to: [
           {
             email: email,
-            name: firstName
+            name: "You"
           }
         ],
-        subject: `Congratulations, ${firstName}! Your Story Received`,
+        subject: `Your Gift of Storytelling is Underway!`,
         htmlContent: `
         <html>
         <head>
@@ -387,9 +387,9 @@ class ArticleService {
                     <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
                 </div>
                 <div class="email-content">
-                    <p>Thank you, <b>${firstName}</b>, for the opportunity to write your story!</p>
+                    <p>Thank you for choosing to honor someone special with the unique gift of their story, told through our words.</p>
 
-                    <p>In the next 72 hours, the team at <b>Journova</b> will be reviewing your information, conducting research, and drafting an article for editorial review.</p>
+                    <p>In the next 72 hours, the team at <b>Journova</b> will be reviewing the details you've shared, conducting research, and drafting an article for editorial review.</p>
 
                     <p>Once complete, you will receive your article by email. You are free to download and print it as you wish!</p>
 
@@ -425,10 +425,10 @@ class ArticleService {
         to: [
           {
             email: email,
-            name: firstName
+            name: 'You'
           }
         ],
-        subject: `Congratulations, ${firstName}! Your Story Received`,
+        subject: `Your Gift of Storytelling is Underway!`,
         htmlContent: `
         <html>
         <head>
@@ -468,9 +468,9 @@ class ArticleService {
                     <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
                 </div>
                 <div class="email-content">
-                    <p>Thank you, <b>${firstName}</b>, for the opportunity to write your story!</p>
+                    <p>Thank you for choosing to honor someone special with the unique gift of their story, told through our words.</p>
 
-                    <p>In the next 48 hours, the team at <b>Journova</b> will be reviewing your information, conducting research, and drafting an article for editorial review.</p>
+                    <p>In the next 48 hours, the team at <b>Journova</b> will be reviewing the details you've shared, conducting research, and drafting an article for editorial review.</p>
 
                     <p>Please look for a draft of that article in your email. Once received, we request that you review the article, agree to the terms and conditions and approve the article for publication.</p>
 
@@ -507,10 +507,10 @@ class ArticleService {
         to: [
           {
             email: email,
-            name: firstName
+            name: 'You'
           }
         ],
-        subject: `Congratulations, ${firstName}! Your Story Received`,
+        subject: `Your Gift of Storytelling is Underway!`,
         htmlContent: `
         <html>
             <head>
@@ -550,9 +550,9 @@ class ArticleService {
                         <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
                     </div>
                     <div class="email-content">
-                        <p>Thank you, <b>${firstName}</b>, for the opportunity to write your story!</p>
+                        <p>Thank you for choosing to honor someone special with the unique gift of their story, told through our words.</p>
 
-                        <p>In the next few hours, the team at <b>Journova</b> will be reviewing your information, conducting research, and drafting an article for editorial review.</p>
+                        <p>In the next few hours, the team at <b>Journova</b> will be reviewing the details you've shared, conducting research, and drafting an article for editorial review.</p>
 
                         <p>Please look for a draft of that article in your email within <b>12 hours</b>. Once received, we request that you review the article, and approve the article for publication or request a revision.</p>
 
@@ -590,10 +590,10 @@ class ArticleService {
         to: [
           {
             email: email,
-            name: firstName
+            name: "You"
           }
         ],
-        subject: `Status Update – Your Story Has Been Written!`,
+        subject: `Status Update – The Story Has Been Written!`,
         htmlContent: `
         <html>
         <head>
@@ -633,9 +633,7 @@ class ArticleService {
                     <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
                 </div>
                 <div class="email-content">
-                    <p>The article titled <b>“${title}”</b> has been written.</p>
-
-                    <p>Are you excited, ${firstName}?</p>
+                    <p>The article titled <b>“${title}”</b> has been written!</p>
 
                     <p>Once our editorial team reviews and polishes your article, we’ll complete the order and send it to you.</p>
 
@@ -672,10 +670,10 @@ class ArticleService {
         to: [
           {
             email: email,
-            name: firstName
+            name: "You"
           }
         ],
-        subject: `Status Update – Your Story Has Been Written!`,
+        subject: `Status Update – The Story Has Been Written!`,
         htmlContent: `
         <html>
         <head>
@@ -717,9 +715,7 @@ class ArticleService {
                 <div class="email-content">
                     <p>The article titled <b>“${title}”</b> has been written.</p>
 
-                    <p>Are you excited, ${firstName}?</p>
-
-                    <p>Once our editorial team reviews and polishes your article, we’ll complete the order and send it to you for review and publication.  </p>
+                    <p>Once our editorial team reviews and polishes the article, we’ll complete the order and send it to you for review and publication.  </p>
 
                     <p>Please respond to this email with any questions or comments.</p>
                 </div>
@@ -759,7 +755,7 @@ class ArticleService {
         to: [
           {
             email: email,
-            name: firstName
+            name: "You"
           }
         ],
         subject: `Your Story Has Been Delivered!`,
@@ -806,11 +802,11 @@ class ArticleService {
 
                     <p><b>PRINT IT! FRAME IT!</b></p>
 
-                    <p><a href="${process.env.JOURNOVA_DOMAIN}/my-article/${slug}">My Story</a></p>
+                    <p><a href="${process.env.JOURNOVA_DOMAIN}/my-article/${slug}">The Article</a></p>
 
-                    <p>Thank you for sharing your story and for allowing us to craft it into something we’re both proud of!</p>
+                    <p>Thank you for sharing this story and for allowing us to craft it into something we’re both proud of!</p>
 
-                    <p>Finally, we’re always looking to improve the experience of our contributors like you ${firstName}!  If you would be willing to share your thoughts, please respond to this email directly with any suggestions you may have.</p>
+                    <p>Finally, we’re always looking to improve the experience of our contributors like you!  If you would be willing to share your thoughts, please respond to this email directly with any suggestions you may have.</p>
 
                     <p>Thanks again,</p>
                 </div>
@@ -848,7 +844,7 @@ class ArticleService {
             name: firstName
           }
         ],
-        subject: `Status Update – Your Story Has Been Approved!`,
+        subject: `Status Update – The Story Has Been Approved!`,
         htmlContent: `
         <html>
             <head>
@@ -890,7 +886,7 @@ class ArticleService {
                     <div class="email-content">
                         <p>The article titled <b>“${title}”</b> has been approved by our editorial team.</p>
 
-                        <p>To review and approve for publication click here: <a href="${process.env.JOURNOVA_DOMAIN}/preview/${slug}"><b>My Story</b></a></p>
+                        <p>To review and approve for publication click here: <a href="${process.env.JOURNOVA_DOMAIN}/preview/${slug}"><b>The Article</b></a></p>
 
                         <p>Once approved, the article will be scheduled for publication within the next few hours and you’ll receive a confirmation with a link to the news source.</p>
 
@@ -929,7 +925,7 @@ class ArticleService {
             name: firstName
           }
         ],
-        subject: `Status Update – Your Story Has Been Approved!`,
+        subject: `Status Update – The Story Has Been Approved!`,
         htmlContent: `
         <html>
             <head>
@@ -971,7 +967,7 @@ class ArticleService {
                     <div class="email-content">
                         <p>The article titled <b>“${title}”</b> has been approved by our editorial team.</p>
 
-                        <p>To review and approve for publication click here: <a href="${process.env.JOURNOVA_DOMAIN}/preview/${slug}"><b>My Story</b></a></p>
+                        <p>To review and approve for publication click here: <a href="${process.env.JOURNOVA_DOMAIN}/preview/${slug}"><b>The Article</b></a></p>
 
                         <p>Once approved, the article will be scheduled for publication within the next few hours and you’ll receive a confirmation with a link to the news source.</p>
 
@@ -1174,7 +1170,7 @@ class ArticleService {
                         <img src="https://journova.s3.us-east-2.amazonaws.com/Screen+Shot+2023-12-29+at+3.29.00+PM.png" alt="Journova Logo" width="150">
                     </div>
                     <div class="email-content">
-                        <p>Following your valuable feedback, our team has fine-tuned your article. We've focused on making the revisions you've requested to ensure your story is shared just the way you envisioned it.</p>
+                        <p>Following your valuable feedback, our team has fine-tuned your article. We've focused on making the revisions you've requested to ensure the story is shared just the way you envisioned it.</p>
 
                         <h2>Review the Changes</h2>
                         <p>Please take a moment to review the revised version of your article. Your final approval is crucial before we move forward with publishing.</p>
